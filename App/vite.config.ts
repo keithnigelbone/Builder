@@ -36,12 +36,12 @@ const relianceOnlyConfig = {
 const relianceCacheDir = path.resolve(repoRoot, 'node_modules/.oneui-cache-app');
 
 export default defineConfig(({ mode }) => {
-  // Reads App/.env.local (see README.md) — `''` prefix means "load every
-  // variable, not just VITE_-prefixed ones". We deliberately do NOT expose
-  // ANTHROPIC_API_KEY to the client bundle; we only copy it onto
+  // Reads the repo-root `.env` (see README.md) — `''` prefix means "load
+  // every variable, not just VITE_-prefixed ones". We deliberately do NOT
+  // expose ANTHROPIC_API_KEY to the client bundle; we only copy it onto
   // process.env so aiServerPlugin.ts (which runs in this Node process, never
   // in the browser) can read it.
-  const env = loadEnv(mode, __dirname, '');
+  const env = loadEnv(mode, repoRoot, '');
   if (env.ANTHROPIC_API_KEY) process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
   if (env.ANTHROPIC_MODEL) process.env.ANTHROPIC_MODEL = env.ANTHROPIC_MODEL;
 
