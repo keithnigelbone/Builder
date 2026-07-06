@@ -1,5 +1,6 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { RELIANCE_BRAND_VOICE } from './src/ai/brandVoice';
 
 /**
  * Dev-only local proxy to the Anthropic API.
@@ -27,8 +28,8 @@ spacing, or component styling yourself — those always come from Reliance's rea
 tokens, applied by the app after you respond. Your job is purely: understand intent,
 classify the right output format, ask sharp follow-up questions when useful, and author
 clear, presentation-ready CONTENT (headlines, copy, structure) for the chosen format.
-Keep copy concise, confident, and on-brand for Reliance (a large, trusted Indian
-conglomerate) — no filler, no placeholder-sounding text like "Lorem ipsum".`;
+
+${RELIANCE_BRAND_VOICE}`;
 
 interface ClassifyRequestBody {
   type: 'classify';
