@@ -47,9 +47,9 @@ rule-based content generator (`App/src/ai/fallbackPlan.ts`) so the guided flow a
 always render something. To get real Claude-authored previews:
 
 1. Get an Anthropic API key: https://console.anthropic.com/
-2. `cp App/.env.example App/.env.local`
-3. Put your key in `App/.env.local` as `ANTHROPIC_API_KEY=sk-ant-...`
-4. Restart `npm run app:dev`
+2. Add `ANTHROPIC_API_KEY=sk-ant-...` to the repo-root `.env` (create the file if it
+   doesn't exist yet — it's already excluded via `.gitignore`).
+3. Restart `npm run app:dev`
 
 The key is **only** read by a local dev-server proxy (`App/aiServerPlugin.ts`) — it is never
 sent to the browser or included in the client bundle. This proxy only exists under
