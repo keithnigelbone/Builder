@@ -3,6 +3,7 @@ import { BUILD_CATEGORIES } from '../data/buildCategories';
 import { AVAILABLE_COMPONENTS } from '../data/oneuiRegistry';
 import { fallbackClassify, fallbackPlan } from './fallbackPlan';
 import type { AIResult, BuildPlan, ClassifyResult, FollowUpQuestion } from './schema';
+import { RELIANCE_VISUAL_BASELINE, RELIANCE_VISUAL_BASELINE_AERIAL } from './artDirection';
 
 const VALID_CATEGORY_IDS = new Set(BUILD_CATEGORIES.map((c) => c.id));
 const AVAILABLE_COMPONENT_NAMES = new Set(AVAILABLE_COMPONENTS.map((c) => c.name));
@@ -30,6 +31,30 @@ function sanitizeFollowUps(raw: unknown): FollowUpQuestion[] {
         !!q && typeof q.id === 'string' && typeof q.prompt === 'string' && Array.isArray(q.options) && q.options.length >= 2,
     )
     .slice(0, 2);
+}
+
+function assembleImagePrompt(plan: Pick<BuildPlan, 'imageSubject' | 'imageAction' | 'imageLocation' | 'imageFraming' | 'imageIsAerial' | 'imageColourNotes'>): string {
+  const baseline = plan.imageIsAerial
+    ? RELIANCE_VISUAL_BASELINE_AERIAL.replace('{{colourNotes}}', plan.imageColourNotes || 'natural')
+    : RELIANCE_VISUAL_BASELINE;
+  return [plan.imageSubject, plan.imageAction, plan.imageLocation, plan.imageFraming, baseline].join('\n');
+}
+
+async function requestHeroImage(plan: BuildPlan): Promise<string | undefined> {
+  if (!plan.imageSubject || !plan.imageAction || !plan.imageLocation || !plan.imageFraming) return undefined;
+
+  try {
+    const res = await fetch('/api/gemini-image', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ prompt: assembleImagePrompt(plan) }),
+    });
+    const json = await res.json();
+    if (!res.ok) return undefined;
+    return typeof json.result?.dataUrl === 'string' ? json.result.dataUrl : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function requestClassification(prompt: string): Promise<AIResult<ClassifyResult>> {
@@ -78,12 +103,12 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     ? raw.recommendedComponentNames.filter((name) => AVAILABLE_COMPONENT_NAMES.has(name))
     : [];
 
-  return {
-    source: 'claude',
-    data: {
-      ...raw,
-      recommendedComponentNames,
-      reasoning: raw.reasoning || 'Authored by Claude.',
-    },
+  const data: BuildPlan = {
+    ...raw,
+    recommendedComponentNames,
+    reasoning: raw.reasoning || 'Authored by Claude.',
   };
+  data.heroImage = await requestHeroImage(data);
+
+  return { source: 'claude', data };
 }
