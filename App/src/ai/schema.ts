@@ -38,6 +38,19 @@ export interface BuildPlan {
   motionConcept?: 'loader' | 'transition' | 'intro-animation' | 'product-reveal' | 'micro-interaction';
   motionDescription?: string;
   dimensionVariant?: string;
+  /**
+   * Claude-authored image-prompt parts, per Conversation/ART_DIRECTION_RELIANCE_v4.md.
+   * Assembled together with the fixed visual baseline by App/src/ai/client.ts — never
+   * sent to Gemini as raw fields, and never authored by Claude as one combined string.
+   */
+  imageSubject?: string;
+  imageAction?: string;
+  imageLocation?: string;
+  imageFraming?: string;
+  imageIsAerial?: boolean;
+  imageColourNotes?: string;
+  /** The generated image (a data URL), attached by client.ts after a successful call to /api/gemini-image. Never authored by Claude. */
+  heroImage?: string;
   /** Names the AI picked — always re-validated against the real registry before use. */
   recommendedComponentNames: string[];
   reasoning: string;
