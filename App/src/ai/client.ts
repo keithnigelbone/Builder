@@ -112,3 +112,22 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
 
   return { source: 'claude', data };
 }
+
+export async function requestMotionVideo(plan: BuildPlan): Promise<{ videoUrl?: string; error?: string }> {
+  if (!plan.imageSubject || !plan.imageAction || !plan.imageLocation || !plan.imageFraming) {
+    return { error: 'This build has no art-directed scene to animate yet.' };
+  }
+
+  try {
+    const res = await fetch('/api/higgsfield-video', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ prompt: assembleImagePrompt(plan), startImageDataUrl: plan.heroImage }),
+    });
+    const json = await res.json();
+    if (!res.ok) return { error: json.error ?? `HTTP ${res.status}` };
+    return { videoUrl: typeof json.result?.videoUrl === 'string' ? json.result.videoUrl : undefined };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Network error reaching the local Higgsfield proxy' };
+  }
+}
