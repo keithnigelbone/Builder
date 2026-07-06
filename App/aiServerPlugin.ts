@@ -1,6 +1,7 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { RELIANCE_BRAND_VOICE } from './src/ai/brandVoice';
+import { RELIANCE_ART_DIRECTION } from './src/ai/artDirection';
 
 /**
  * Dev-only local proxy to the Anthropic API.
@@ -126,6 +127,21 @@ const PLAN_TOOL = {
         items: { type: 'string' },
         description: 'Pick 4-8 names from the provided availableComponents list that best fit this build.',
       },
+      imageSubject: { type: 'string', description: 'Image: physical description and clothing of the subject, per the art-direction rules.' },
+      imageAction: { type: 'string', description: "Image: what the subject's hands are doing — specific and real, never resting." },
+      imageLocation: {
+        type: 'string',
+        description: 'Image: a named Indian place with physical, specific detail (e.g. "red-brown Rajasthan earth, dry scrubland") — never a generic phrase like "in India".',
+      },
+      imageFraming: {
+        type: 'string',
+        description: 'Image: shot type and angle per the framing rules (e.g. "medium close-up, slight low angle" for people; "wide low angle" for infrastructure).',
+      },
+      imageIsAerial: { type: 'boolean', description: 'Image: true only for a genuine top-down/aerial shot.' },
+      imageColourNotes: {
+        type: 'string',
+        description: 'Image: only used when imageIsAerial is true — the scene\'s specific colours for the aerial visual baseline (e.g. "steel-blue panels and red-brown earth").',
+      },
       reasoning: { type: 'string', description: 'One or two sentences on the layout/content choices made and why.' },
     },
     required: ['headline', 'reasoning', 'recommendedComponentNames'],
@@ -225,7 +241,8 @@ export function claudeApiProxy(): Plugin {
               `Components available to recommend from (pick only from this real list): ${body.availableComponents.join(', ')}`,
             ].filter(Boolean);
 
-            const input = await callAnthropic(apiKey, RELIANCE_SYSTEM_PROMPT, contextLines.join('\n'), PLAN_TOOL);
+            const planSystemPrompt = `${RELIANCE_SYSTEM_PROMPT}\n\n${RELIANCE_ART_DIRECTION}`;
+            const input = await callAnthropic(apiKey, planSystemPrompt, contextLines.join('\n'), PLAN_TOOL);
             sendJson(res, 200, { result: input });
             return;
           }
