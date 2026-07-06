@@ -8,6 +8,8 @@ import { Text } from '@jds4/oneui-react';
  * this isn't a real design-system component.
  */
 export function StepProgress({ step, total }: { step: number; total: number }) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--Spacing-2)' }}>
       {Array.from({ length: total }, (_, i) => (
@@ -17,7 +19,7 @@ export function StepProgress({ step, total }: { step: number; total: number }) {
             width: i === step ? 20 : 6,
             height: 6,
             borderRadius: 999,
-            transition: 'width 200ms ease',
+            transition: prefersReducedMotion ? 'none' : 'width 200ms ease',
             background: i <= step ? 'var(--Primary-Bold, #444)' : 'var(--Neutral-Subtle, #ddd)',
           }}
         />

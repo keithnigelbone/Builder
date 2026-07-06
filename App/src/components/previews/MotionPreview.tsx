@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container, Text, CircularProgressIndicator, Image } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
+import { describeHeroImage } from '../../ai/schema';
 import { pickMotionTokens } from '../../data/motionMapping';
 
 export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feelingAnswerId: string | undefined }) {
@@ -8,6 +9,9 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
   const [pulsed, setPulsed] = useState(false);
 
   useEffect(() => {
+    // Continuous decorative animation — skip it entirely for users who've
+    // asked their OS to reduce motion, rather than just shortening it.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = setInterval(() => setPulsed((p) => !p), 1400);
     return () => clearInterval(id);
   }, []);
@@ -23,7 +27,7 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
       width="full"
       style={{ height: '100%' }}
     >
-      {plan.heroImage && <Image src={plan.heroImage} alt="" aspectRatio="1:1" width={120} />}
+      {plan.heroImage && <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="1:1" width={120} />}
       <CircularProgressIndicator variant="indeterminate" size="XL" aria-label="Motion preview" />
       <div
         style={{

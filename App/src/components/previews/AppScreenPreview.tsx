@@ -1,5 +1,6 @@
 import { Container, Text, Avatar, BottomNavigation, BottomNavItem, Image } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
+import { describeHeroImage } from '../../ai/schema';
 
 export function AppScreenPreview({ plan }: { plan: BuildPlan }) {
   const blocks = plan.contentBlocks?.length ? plan.contentBlocks : ['Content block', 'Content block'];
@@ -14,7 +15,7 @@ export function AppScreenPreview({ plan }: { plan: BuildPlan }) {
       </Container>
 
       <Container variant="full-bleed" layout="flex" direction="column" gap="3" padding="4" grow={1} width="full">
-        {plan.heroImage && <Image src={plan.heroImage} alt="" aspectRatio="16:9" width="full" />}
+        {plan.heroImage && <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="16:9" width="full" />}
         {blocks.map((label, i) => (
           <Container
             key={i}

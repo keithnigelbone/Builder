@@ -1,5 +1,6 @@
 import { Container, Text, Badge, Image } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
+import { describeHeroImage } from '../../ai/schema';
 import { BrandMark } from '../BrandMark';
 
 export function SlidePreview({ plan }: { plan: BuildPlan }) {
@@ -32,7 +33,7 @@ export function SlidePreview({ plan }: { plan: BuildPlan }) {
         )}
         {plan.heroImage && (
           <Container variant="full-bleed" width="full" style={{ maxHeight: 280 }}>
-            <Image src={plan.heroImage} alt="" aspectRatio="16:9" width="full" />
+            <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="16:9" width="full" />
           </Container>
         )}
       </Container>

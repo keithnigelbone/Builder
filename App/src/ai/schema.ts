@@ -62,3 +62,13 @@ export interface AIResult<T> {
   /** Present when source is 'fallback' — shown honestly in Build details, never hidden. */
   fallbackReason?: string;
 }
+
+/**
+ * Descriptive alt text for a generated hero image — built from the same
+ * image-prompt parts used to generate it, since the image is meaningful
+ * content (what the AI actually described), not decorative.
+ */
+export function describeHeroImage(plan: Pick<BuildPlan, 'imageSubject' | 'imageAction' | 'imageLocation' | 'headline'>): string {
+  const parts = [plan.imageSubject, plan.imageAction, plan.imageLocation].filter(Boolean);
+  return parts.length > 0 ? parts.join(', ') : plan.headline || 'Generated preview image';
+}
