@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Container, Text, CircularProgressIndicator, Image } from '@jds4/oneui-react';
+import { Container, Text, CircularProgressIndicator, Image, Button } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
 import { describeHeroImage } from '../../ai/schema';
 import { pickMotionTokens } from '../../data/motionMapping';
+import { requestMotionVideo } from '../../ai/client';
+
+type VideoState = { status: 'idle' | 'generating' | 'done' | 'error'; videoUrl?: string; error?: string };
 
 export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feelingAnswerId: string | undefined }) {
   const { duration, easing } = pickMotionTokens(feelingAnswerId);
   const [pulsed, setPulsed] = useState(false);
+  const [videoState, setVideoState] = useState<VideoState>({ status: 'idle' });
 
   useEffect(() => {
     // Continuous decorative animation — skip it entirely for users who've
@@ -15,6 +19,18 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
     const id = setInterval(() => setPulsed((p) => !p), 1400);
     return () => clearInterval(id);
   }, []);
+
+  const canGenerateVideo = !!(plan.imageSubject && plan.imageAction && plan.imageLocation && plan.imageFraming);
+
+  const handleGenerateVideo = async () => {
+    setVideoState({ status: 'generating' });
+    const result = await requestMotionVideo(plan);
+    if (result.videoUrl) {
+      setVideoState({ status: 'done', videoUrl: result.videoUrl });
+    } else {
+      setVideoState({ status: 'error', error: result.error || 'Video generation failed.' });
+    }
+  };
 
   return (
     <Container
@@ -27,8 +43,21 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
       width="full"
       style={{ height: '100%' }}
     >
-      {plan.heroImage && <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="1:1" width={120} />}
-      <CircularProgressIndicator variant="indeterminate" size="XL" aria-label="Motion preview" />
+      {videoState.status === 'done' && videoState.videoUrl ? (
+        <video
+          src={videoState.videoUrl}
+          controls
+          autoPlay
+          loop
+          muted
+          style={{ maxWidth: '100%', maxHeight: 320, borderRadius: 'var(--Shape-3)' }}
+        />
+      ) : (
+        <>
+          {plan.heroImage && <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="1:1" width={120} />}
+          <CircularProgressIndicator variant="indeterminate" size="XL" aria-label="Motion preview" />
+        </>
+      )}
       <div
         style={{
           width: pulsed ? 96 : 56,
@@ -47,6 +76,24 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
           {duration ? ` Uses Reliance's ${duration}${easing ? ` / ${easing}` : ''}.` : ''}
         </Text>
       </Container>
+
+      {canGenerateVideo && videoState.status !== 'done' && (
+        <Button
+          attention="medium"
+          size="m"
+          onClick={handleGenerateVideo}
+          disabled={videoState.status === 'generating'}
+          loading={videoState.status === 'generating'}
+        >
+          {videoState.status === 'generating' ? 'Generating video… this can take a few minutes' : 'Generate video'}
+        </Button>
+      )}
+
+      {videoState.status === 'error' && (
+        <Text variant="body" size="S" appearance="negative" textAlign="center">
+          {videoState.error}
+        </Text>
+      )}
     </Container>
   );
 }
