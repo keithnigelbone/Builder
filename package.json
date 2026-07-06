@@ -1,0 +1,28 @@
+{
+  "name": "jds4-component-review",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "app:dev": "vite --config App/vite.config.ts --port 5173",
+    "app:build": "vite build --config App/vite.config.ts"
+  },
+  "dependencies": {
+    "@jds4/oneui-icons-jio": "file:/Users/keithbone/Downloads/jds4-packages-0.1.0-alpha.10/jds4-oneui-icons-jio-0.1.0-alpha.10.tgz",
+    "@jds4/oneui-react": "file:../Downloads/jds4-packages-0.1.0-alpha.10/jds4-oneui-react-0.1.0-alpha.10.tgz",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@jds4/oneui-vite-plugin": "file:/Users/keithbone/Downloads/jds4-packages-0.1.0-alpha.10/jds4-oneui-vite-plugin-0.1.0-alpha.10.tgz",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/react-vite": "^8.6.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "storybook": "^8.6.0",
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0"
+  }
+}

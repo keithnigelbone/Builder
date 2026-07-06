@@ -1,0 +1,68 @@
+{
+  "$schema": "oneui-tokens/v1",
+  "brand": {
+    "id": "j970vgh2hfqhsd3s70773mpwkd858e2k",
+    "name": "Reliance"
+  },
+  "generatedAt": "2026-07-01T22:03:22.112Z",
+  "notes": [
+    "Resolved tokens are flat var() expressions or computed colour values, mirroring the CSS injected at runtime.",
+    "Surface-context remapping ([data-surface=…] blocks) is intentionally omitted; consumers should re-derive per-context values from the same brand inputs."
+  ],
+  "themes": {
+    "light": {
+      "color": {},
+      "surface": {},
+      "typography": {
+        "--Typography-Font-Text": "jiotype-var",
+        "--Typography-Font-Body": "jiotype-var",
+        "--Typography-Font-Primary": "jiotype-var",
+        "--Typography-Font-Heading": "playfair-display",
+        "--Typography-Font-Display": "playfair-display",
+        "--Typography-Font-Secondary": "playfair-display",
+        "--Typography-Font-Script": "noto-sans",
+        "--Display-FontFamily": "var(--Typography-Font-Text)",
+        "--Headline-FontFamily": "var(--Typography-Font-Text)",
+        "--Title-FontFamily": "var(--Typography-Font-Text)",
+        "--Body-FontFamily": "var(--Typography-Font-Text)",
+        "--Label-FontFamily": "var(--Typography-Font-Text)",
+        "--Typography-Weight-Regular": "400",
+        "--Typography-Weight-Medium": "500",
+        "--Typography-Weight-Bold": "700",
+        "--Typography-Weight-Extrabold": "900"
+      },
+      "motion": {},
+      "elevation": {},
+      "grid": {},
+      "material": {},
+      "other": {}
+    },
+    "dark": {
+      "color": {},
+      "surface": {},
+      "typography": {
+        "--Typography-Font-Text": "jiotype-var",
+        "--Typography-Font-Body": "jiotype-var",
+        "--Typography-Font-Primary": "jiotype-var",
+        "--Typography-Font-Heading": "playfair-display",
+        "--Typography-Font-Display": "playfair-display",
+        "--Typography-Font-Secondary": "playfair-display",
+        "--Typography-Font-Script": "noto-sans",
+        "--Display-FontFamily": "var(--Typography-Font-Text)",
+        "--Headline-FontFamily": "var(--Typography-Font-Text)",
+        "--Title-FontFamily": "var(--Typography-Font-Text)",
+        "--Body-FontFamily": "var(--Typography-Font-Text)",
+        "--Label-FontFamily": "var(--Typography-Font-Text)",
+        "--Typography-Weight-Regular": "400",
+        "--Typography-Weight-Medium": "500",
+        "--Typography-Weight-Bold": "700",
+        "--Typography-Weight-Extrabold": "900"
+      },
+      "motion": {},
+      "elevation": {},
+      "grid": {},
+      "material": {},
+      "other": {}
+    }
+  }
+}

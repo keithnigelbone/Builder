@@ -1,0 +1,76 @@
+{
+  "$schema": "oneui-tokens/v1",
+  "brand": {
+    "id": "j970vgh2hfqhsd3s70773mpwkd858e2k",
+    "name": "Reliance"
+  },
+  "generatedAt": "2026-07-01T22:03:34.329Z",
+  "notes": [
+    "Resolved tokens are flat var() expressions or computed colour values, mirroring the CSS injected at runtime.",
+    "Surface-context remapping ([data-surface=…] blocks) is intentionally omitted; consumers should re-derive per-context values from the same brand inputs."
+  ],
+  "themes": {
+    "light": {
+      "color": {},
+      "surface": {},
+      "typography": {},
+      "motion": {},
+      "elevation": {},
+      "grid": {
+        "[data-Breakpoint=\"S\"][data-6-Density=\"default\"] --Grid-Margin": "16px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"default\"] --Grid-Gutter": "8px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"compact\"] --Grid-Margin": "10.5px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"compact\"] --Grid-Gutter": "5.25px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"open\"] --Grid-Margin": "22.5px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"open\"] --Grid-Gutter": "11.25px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"default\"] --Grid-Margin": "36px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"default\"] --Grid-Gutter": "18px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"compact\"] --Grid-Margin": "24px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"compact\"] --Grid-Gutter": "12px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"open\"] --Grid-Margin": "50px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"open\"] --Grid-Gutter": "25px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"default\"] --Grid-Margin": "50px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"default\"] --Grid-Gutter": "25px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"compact\"] --Grid-Margin": "36px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"compact\"] --Grid-Gutter": "18px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"open\"] --Grid-Margin": "88px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"open\"] --Grid-Gutter": "30.25px",
+        "--Spacing-Margin": "var(--Grid-Margin)",
+        "--Spacing-Gutter": "var(--Grid-Gutter)"
+      },
+      "material": {},
+      "other": {}
+    },
+    "dark": {
+      "color": {},
+      "surface": {},
+      "typography": {},
+      "motion": {},
+      "elevation": {},
+      "grid": {
+        "[data-Breakpoint=\"S\"][data-6-Density=\"default\"] --Grid-Margin": "16px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"default\"] --Grid-Gutter": "8px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"compact\"] --Grid-Margin": "10.5px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"compact\"] --Grid-Gutter": "5.25px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"open\"] --Grid-Margin": "22.5px",
+        "[data-Breakpoint=\"S\"][data-6-Density=\"open\"] --Grid-Gutter": "11.25px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"default\"] --Grid-Margin": "36px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"default\"] --Grid-Gutter": "18px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"compact\"] --Grid-Margin": "24px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"compact\"] --Grid-Gutter": "12px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"open\"] --Grid-Margin": "50px",
+        "[data-Breakpoint=\"M\"][data-6-Density=\"open\"] --Grid-Gutter": "25px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"default\"] --Grid-Margin": "50px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"default\"] --Grid-Gutter": "25px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"compact\"] --Grid-Margin": "36px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"compact\"] --Grid-Gutter": "18px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"open\"] --Grid-Margin": "88px",
+        "[data-Breakpoint=\"L\"][data-6-Density=\"open\"] --Grid-Gutter": "30.25px",
+        "--Spacing-Margin": "var(--Grid-Margin)",
+        "--Spacing-Gutter": "var(--Grid-Gutter)"
+      },
+      "material": {},
+      "other": {}
+    }
+  }
+}

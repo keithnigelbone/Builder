@@ -1,0 +1,8 @@
+{
+  "cdnUrl": "https://myjiostatic.cdn.jio.com/JDS/react",
+  "brands": {
+    "jio": "latest",
+    "reliance": "latest",
+    "swadesh": "latest"
+  }
+}
