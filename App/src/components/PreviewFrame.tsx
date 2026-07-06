@@ -87,6 +87,10 @@ function FrameChrome({
   // color instead of white. The previewed website/screen/slide/post is
   // its own independent page — it should never visually inherit the
   // Builder tool's own panel depth.
+  // overflowY: 'auto' lets content taller than the format's real height
+  // (e.g. a website with several sections) scroll within the fixed-size
+  // canvas instead of being silently clipped. overflowX stays hidden since
+  // width is the one dimension previews are meant to fit exactly.
   const canvas = (
     <div
       style={{
@@ -94,10 +98,11 @@ function FrameChrome({
         height,
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
-        overflow: 'hidden',
+        overflowY: 'auto',
+        overflowX: 'hidden',
       }}
     >
-      <Surface mode="default" style={{ width: '100%', height: '100%' }}>
+      <Surface mode="default" style={{ width: '100%', minHeight: '100%' }}>
         {children}
       </Surface>
     </div>
@@ -112,8 +117,8 @@ function FrameChrome({
             <span key={color} style={{ width: 8, height: 8, borderRadius: 999, background: color }} />
           ))}
         </div>
-        <div style={{ width, height: height - barHeight / scale, transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden' }}>
-          <Surface mode="default" style={{ width: '100%', height: '100%' }}>
+        <div style={{ width, height: height - barHeight / scale, transform: `scale(${scale})`, transformOrigin: 'top left', overflowY: 'auto', overflowX: 'hidden' }}>
+          <Surface mode="default" style={{ width: '100%', minHeight: '100%' }}>
             {children}
           </Surface>
         </div>
