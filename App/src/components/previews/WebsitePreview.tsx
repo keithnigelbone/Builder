@@ -14,6 +14,7 @@ export function WebsitePreview({ plan }: { plan: BuildPlan }) {
         layout="flex"
         align="center"
         justify="space-between"
+        width="full"
         padding="4"
         style={{ borderBottom: '1px solid var(--Neutral-Stroke-Low)' }}
       >
