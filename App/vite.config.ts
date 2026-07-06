@@ -7,6 +7,7 @@ import { oneui } from '@jds4/oneui-vite-plugin';
 import { relianceTokenCoverage } from './relianceTokenCoveragePlugin';
 import { claudeApiProxy } from './aiServerPlugin';
 import { geminiImageProxy } from './geminiImageProxy';
+import { higgsfieldVideoProxy } from './higgsfieldVideoProxy';
 
 // No @vitejs/plugin-react here on purpose (keeping deps minimal, per project
 // convention) — Vite's built-in esbuild transform already handles .tsx via
@@ -65,6 +66,7 @@ export default defineConfig(({ mode }) => {
       relianceTokenCoverage(path.join(relianceCacheDir, 'brands/reliance')),
       claudeApiProxy(),
       geminiImageProxy(),
+      higgsfieldVideoProxy(),
     ],
     define: {
       __ONEUI_BRANDS_CONFIG__: JSON.stringify(fullBrandsConfig),
