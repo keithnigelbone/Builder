@@ -6,6 +6,7 @@ import { defineConfig, loadEnv } from 'vite';
 import { oneui } from '@jds4/oneui-vite-plugin';
 import { relianceTokenCoverage } from './relianceTokenCoveragePlugin';
 import { claudeApiProxy } from './aiServerPlugin';
+import { geminiImageProxy } from './geminiImageProxy';
 
 // No @vitejs/plugin-react here on purpose (keeping deps minimal, per project
 // convention) — Vite's built-in esbuild transform already handles .tsx via
@@ -44,6 +45,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, repoRoot, '');
   if (env.ANTHROPIC_API_KEY) process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
   if (env.ANTHROPIC_MODEL) process.env.ANTHROPIC_MODEL = env.ANTHROPIC_MODEL;
+  if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
+  if (env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = env.GEMINI_IMAGE_MODEL;
 
   return {
     // `--config App/vite.config.ts` only selects the config file — Vite still
@@ -61,6 +64,7 @@ export default defineConfig(({ mode }) => {
       oneui({ ...relianceOnlyConfig, cacheDir: relianceCacheDir }),
       relianceTokenCoverage(path.join(relianceCacheDir, 'brands/reliance')),
       claudeApiProxy(),
+      geminiImageProxy(),
     ],
     define: {
       __ONEUI_BRANDS_CONFIG__: JSON.stringify(fullBrandsConfig),
