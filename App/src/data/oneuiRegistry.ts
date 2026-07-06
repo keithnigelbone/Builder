@@ -10,10 +10,12 @@
  */
 import { ALL_COMPONENT_METAS, type ComponentMeta } from '@jds4/oneui-react/registry/metaRegistry';
 import { isComponentReleased } from '@jds4/oneui-react/registry/releasedComponents';
+import { STORYBOOK_COMPONENT_NAMES } from './storybookRegistry';
 
-/** Every component this app is allowed to recommend or reference. */
-export const AVAILABLE_COMPONENTS: ComponentMeta[] = ALL_COMPONENT_METAS.filter((meta) =>
-  isComponentReleased(meta.name),
+/** Every component this app is allowed to recommend or reference: released by
+ *  the package AND covered by an actual Storybook story in this repo. */
+export const AVAILABLE_COMPONENTS: ComponentMeta[] = ALL_COMPONENT_METAS.filter(
+  (meta) => isComponentReleased(meta.name) && STORYBOOK_COMPONENT_NAMES.has(meta.name),
 );
 
 const BY_NAME = new Map(AVAILABLE_COMPONENTS.map((meta) => [meta.name, meta]));
