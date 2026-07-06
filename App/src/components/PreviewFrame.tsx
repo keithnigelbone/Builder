@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Container, SelectableButton } from '@jds4/oneui-react';
+import { Container, SelectableButton, Surface } from '@jds4/oneui-react';
 import { DIMENSIONS, type DimensionVariant } from '../data/previewDimensions';
 import type { BuildCategoryId } from '../types';
 
@@ -78,6 +78,15 @@ function FrameChrome({
   scale: number;
   children: ReactNode;
 }) {
+  // Each preview canvas gets its own fresh Surface (mode="default" always
+  // resets to the base step regardless of parent nesting — see
+  // Surface.mjs's step-resolution logic). Without this, the canvas just
+  // inherits var(--Surface-Default) from whatever elevation context the
+  // surrounding tool chrome happens to be nested at (e.g. BuildPreview's
+  // Surface mode="moderate"), which recontextualizes it to a tinted brand
+  // color instead of white. The previewed website/screen/slide/post is
+  // its own independent page — it should never visually inherit the
+  // Builder tool's own panel depth.
   const canvas = (
     <div
       style={{
@@ -86,10 +95,11 @@ function FrameChrome({
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
         overflow: 'hidden',
-        background: 'var(--Surface-Default)',
       }}
     >
-      {children}
+      <Surface mode="default" style={{ width: '100%', height: '100%' }}>
+        {children}
+      </Surface>
     </div>
   );
 
@@ -102,8 +112,10 @@ function FrameChrome({
             <span key={color} style={{ width: 8, height: 8, borderRadius: 999, background: color }} />
           ))}
         </div>
-        <div style={{ width, height: height - barHeight / scale, transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden', background: 'var(--Surface-Default)' }}>
-          {children}
+        <div style={{ width, height: height - barHeight / scale, transform: `scale(${scale})`, transformOrigin: 'top left', overflow: 'hidden' }}>
+          <Surface mode="default" style={{ width: '100%', height: '100%' }}>
+            {children}
+          </Surface>
         </div>
       </div>
     );
