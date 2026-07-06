@@ -1,4 +1,4 @@
-import { Container, Text, Badge } from '@jds4/oneui-react';
+import { Container, Text, Badge, Image } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
 import { BrandMark } from '../BrandMark';
 
@@ -19,6 +19,8 @@ export function SocialPreview({ plan }: { plan: BuildPlan }) {
           {plan.badgeLabel || 'New'}
         </Badge>
       </Container>
+
+      {plan.heroImage && <Image src={plan.heroImage} alt="" aspectRatio="1:1" width="full" />}
 
       <Container variant="full-bleed" layout="flex" direction="column" gap="2" width="full">
         <Text variant="display" size="S" style={{ color: 'var(--Text-OnBold-High, #fff)' }}>

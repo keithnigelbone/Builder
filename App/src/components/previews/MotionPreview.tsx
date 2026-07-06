@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container, Text, CircularProgressIndicator } from '@jds4/oneui-react';
+import { Container, Text, CircularProgressIndicator, Image } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
 import { pickMotionTokens } from '../../data/motionMapping';
 
@@ -23,6 +23,7 @@ export function MotionPreview({ plan, feelingAnswerId }: { plan: BuildPlan; feel
       width="full"
       style={{ height: '100%' }}
     >
+      {plan.heroImage && <Image src={plan.heroImage} alt="" aspectRatio="1:1" width={120} />}
       <CircularProgressIndicator variant="indeterminate" size="XL" aria-label="Motion preview" />
       <div
         style={{
