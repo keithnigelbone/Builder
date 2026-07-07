@@ -101,6 +101,28 @@ describe('requestPlan', () => {
     expect(result.data.recommendedComponentNames).toEqual(['Button']);
   });
 
+  it('drops array-shaped fields that come back malformed instead of crashing the renderer', async () => {
+    // Observed live: Claude returned navItems as a mangled string
+    // ('About\", \"Businesses\", ...') instead of a real array.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(200, {
+          result: {
+            headline: 'Hi',
+            navItems: 'About", "Businesses", "Sustainability", "Investors',
+            sections: 'not an array either',
+          },
+        }),
+      ),
+    );
+
+    const result = await requestPlan(input);
+
+    expect(result.data.navItems).toBeUndefined();
+    expect(result.data.sections).toBeUndefined();
+  });
+
   it('does not request a hero image when image-prompt parts are incomplete', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, { result: { headline: 'Hi' } }));
     vi.stubGlobal('fetch', fetchMock);

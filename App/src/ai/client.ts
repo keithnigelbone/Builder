@@ -23,6 +23,17 @@ async function postToClaude(body: unknown): Promise<{ ok: true; result: unknown 
   }
 }
 
+/**
+ * Claude's structured output isn't always schema-compliant in practice — an
+ * array field can come back as a malformed string instead (observed live:
+ * `navItems` arrived as `"About\", \"Businesses\", ..."` rather than a real
+ * array), which would otherwise crash the first component that calls
+ * `.map()` on it. Drop the field back to `undefined` rather than trust it.
+ */
+function asArray<T>(value: unknown): T[] | undefined {
+  return Array.isArray(value) ? (value as T[]) : undefined;
+}
+
 function sanitizeFollowUps(raw: unknown): FollowUpQuestion[] {
   if (!Array.isArray(raw)) return [];
   return raw
@@ -105,6 +116,11 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
 
   const data: BuildPlan = {
     ...raw,
+    navItems: asArray(raw.navItems),
+    sections: asArray(raw.sections),
+    newsItems: asArray(raw.newsItems),
+    contentBlocks: asArray(raw.contentBlocks),
+    screenNavItems: asArray(raw.screenNavItems),
     recommendedComponentNames,
     reasoning: raw.reasoning || 'Authored by Claude.',
   };
