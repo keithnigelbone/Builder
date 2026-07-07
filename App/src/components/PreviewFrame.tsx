@@ -99,6 +99,14 @@ function FrameChrome({
   // (e.g. a website with several sections) scroll within the fixed-size
   // canvas instead of being silently clipped. overflowX stays hidden since
   // width is the one dimension previews are meant to fit exactly.
+  // Surface must use height:100% here, not minHeight:100% — per CSS,
+  // min-height doesn't give a definite computed height, so a category
+  // preview's own root (which sets height:'100%' + justify:'space-between'
+  // to spread its rows across the canvas) can't resolve its percentage
+  // against it and silently shrinks to its content's natural height
+  // instead. Invisible whenever content is already tall enough to fill the
+  // canvas anyway — glaring for a short-content build in a tall canvas
+  // (e.g. a social post with no hero image in the Story format).
   const canvas = (
     <div
       style={{
@@ -110,7 +118,7 @@ function FrameChrome({
         overflowX: 'hidden',
       }}
     >
-      <Surface mode="default" style={{ width: '100%', minHeight: '100%' }}>
+      <Surface mode="default" style={{ width: '100%', height: '100%' }}>
         {children}
       </Surface>
     </div>
@@ -126,7 +134,7 @@ function FrameChrome({
           ))}
         </div>
         <div style={{ width, height: height - barHeight / scale, transform: `scale(${scale})`, transformOrigin: 'top left', overflowY: 'auto', overflowX: 'hidden' }}>
-          <Surface mode="default" style={{ width: '100%', minHeight: '100%' }}>
+          <Surface mode="default" style={{ width: '100%', height: '100%' }}>
             {children}
           </Surface>
         </div>
