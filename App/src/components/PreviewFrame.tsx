@@ -38,13 +38,17 @@ export function PreviewFrame({ category, variantId, onVariantChange, chrome, chi
     return () => observer.disconnect();
   }, []);
 
-  // Cap the visual height so tall formats (story, mobile) don't dominate the
-  // page — width is always maximized to fill the available panel, and any
-  // excess past the cap scrolls instead of shrinking the whole frame (which
-  // previously left landscape formats like website/desktop narrower than the
-  // panel even when there was room to show them wider).
+  // "browser"/"phone" chrome represents a scrollable page (website, app
+  // screens) — width fidelity is what matters, so it always fills the panel
+  // and any excess height scrolls. "none" chrome represents a fixed-shape
+  // artifact (a social post, a slide, a motion panel) where the aspect
+  // ratio itself is the point of the preview, so it must be scaled to fit
+  // both dimensions and never cropped — otherwise a square and a portrait
+  // format of the same width would render identically capped and look
+  // indistinguishable when switching between them.
   const maxVisualHeight = 560;
-  const { scale, frameWidth, frameHeight, scrollable } = computeFitFrame(containerWidth, variant, maxVisualHeight);
+  const fitMode = chrome === 'none' ? 'contain' : 'fill-width';
+  const { scale, frameWidth, frameHeight, scrollable } = computeFitFrame(containerWidth, variant, maxVisualHeight, fitMode);
 
   return (
     <Container variant="full-bleed" layout="flex" direction="column" gap="3" width="full">

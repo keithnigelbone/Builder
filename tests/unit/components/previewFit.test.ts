@@ -11,9 +11,10 @@ describe('computeFitFrame', () => {
     expect(frame.frameWidth).toBeCloseTo(1200, 0);
   });
 
-  it('still caps the visible height so a tall/portrait variant does not dominate the page', () => {
-    // story/reel is 1080x1920 — at a 1200px-wide panel it would naturally
-    // render ~2133px tall; the visible frame should stay capped.
+  it('still caps the visible height so a tall/narrow variant does not dominate the page', () => {
+    // An arbitrary tall/narrow canvas that would naturally render much
+    // taller than the visual cap at this container width — the visible
+    // frame should stay capped rather than growing without bound.
     const frame = computeFitFrame(1200, { width: 1080, height: 1920 }, 560);
 
     expect(frame.frameHeight).toBeLessThanOrEqual(560);
@@ -26,5 +27,32 @@ describe('computeFitFrame', () => {
 
     expect(frame.scale).toBeLessThanOrEqual(1);
     expect(frame.frameWidth).toBeCloseTo(375, 0);
+  });
+});
+
+describe('computeFitFrame with mode "contain"', () => {
+  // Fixed-shape artifacts (a social post, a slide, a motion panel) must show
+  // their whole proportional shape — never cropped — unlike a scrollable
+  // page (the default "fill-width" mode), where only width fidelity matters.
+
+  it('keeps a square variant visually square, scaled to fit both width and height', () => {
+    const frame = computeFitFrame(1200, { width: 1080, height: 1080 }, 560, 'contain');
+
+    expect(frame.frameWidth).toBeCloseTo(frame.frameHeight, 0);
+    expect(frame.scrollable).toBe(false);
+  });
+
+  it('renders a portrait story variant distinctly narrower than a square of the same width', () => {
+    const square = computeFitFrame(1200, { width: 1080, height: 1080 }, 560, 'contain');
+    const story = computeFitFrame(1200, { width: 1080, height: 1920 }, 560, 'contain');
+
+    expect(story.frameHeight).toBeCloseTo(square.frameHeight, 0);
+    expect(story.frameWidth).toBeLessThan(square.frameWidth);
+  });
+
+  it('never marks a contained frame as scrollable, even when height is the binding constraint', () => {
+    const frame = computeFitFrame(1200, { width: 1080, height: 1920 }, 560, 'contain');
+
+    expect(frame.scrollable).toBe(false);
   });
 });
