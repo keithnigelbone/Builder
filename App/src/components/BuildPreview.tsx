@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Surface } from '@jds4/oneui-react';
+import { Container, Text, Button, Surface } from '@jds4/oneui-react';
 import type { BuildCategoryId, GuidedAnswers } from '../types';
-import type { BuildPlan } from '../ai/schema';
+import type { BuildPlan, SlideContent } from '../ai/schema';
 import { getDefaultVariant } from '../data/previewDimensions';
 import { PreviewFrame } from './PreviewFrame';
 import { WebsitePreview } from './previews/WebsitePreview';
@@ -28,24 +28,48 @@ const CHROME_BY_CATEGORY: Record<BuildCategoryId, 'browser' | 'phone' | 'none'> 
  */
 export function BuildPreview({ category, answers, plan }: { category: BuildCategoryId; answers: GuidedAnswers; plan: BuildPlan }) {
   const [variantId, setVariantId] = useState(() => getDefaultVariant(category).id);
+  const [slideIndex, setSlideIndex] = useState(0);
 
-  // Reset to this category's default canvas when the category itself
-  // changes (starting a new build), but keep the chosen variant across
-  // refinements of the *same* build.
+  // Reset to this category's default canvas (and the first slide, for a
+  // slides build) when the category itself changes (starting a new build),
+  // but keep the chosen variant/slide across refinements of the *same* build.
   useEffect(() => {
     setVariantId(plan.dimensionVariant ?? getDefaultVariant(category).id);
+    setSlideIndex(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
+
+  // Defensively falls back to a single generic slide if plan.slides is ever
+  // empty (mirrors the navItems/sections/contentBlocks defensive-default
+  // pattern used throughout this file's sibling preview components), and
+  // clamps the index if the array is ever shorter than the last-viewed
+  // position (e.g. after a refinement that changes the deck length).
+  const slides: SlideContent[] = plan.slides?.length ? plan.slides : [{ slideType: 'content', headline: plan.headline || 'Untitled slide' }];
+  const currentIndex = Math.min(Math.max(slideIndex, 0), slides.length - 1);
 
   return (
     <Surface mode="moderate" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
       <PreviewFrame category={category} variantId={variantId} onVariantChange={setVariantId} chrome={CHROME_BY_CATEGORY[category]}>
         {category === 'website' && <WebsitePreview plan={plan} />}
         {category === 'app-screens' && <AppScreenPreview plan={plan} />}
-        {category === 'slides' && <SlidePreview plan={plan} />}
+        {category === 'slides' && <SlidePreview slide={slides[currentIndex]} heroImage={plan.heroImage} />}
         {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} />}
         {category === 'motion' && <MotionPreview plan={plan} feelingAnswerId={answers['motion-feeling']} />}
       </PreviewFrame>
+
+      {category === 'slides' && slides.length > 1 && (
+        <Container variant="full-bleed" layout="flex" align="center" justify="center" gap="4" padding="4">
+          <Button attention="low" size="s" disabled={currentIndex === 0} onClick={() => setSlideIndex(currentIndex - 1)}>
+            Previous
+          </Button>
+          <Text variant="label" size="S" appearance="neutral">
+            Slide {currentIndex + 1} of {slides.length}
+          </Text>
+          <Button attention="low" size="s" disabled={currentIndex === slides.length - 1} onClick={() => setSlideIndex(currentIndex + 1)}>
+            Next
+          </Button>
+        </Container>
+      )}
     </Surface>
   );
 }
