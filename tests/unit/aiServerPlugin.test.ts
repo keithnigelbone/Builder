@@ -21,3 +21,18 @@ describe('PLAN_TOOL schema', () => {
     expect(props.contactHeadline.type).toBe('string');
   });
 });
+
+describe('PLAN_TOOL schema — app screens', () => {
+  it('includes typed contentBlocks and screenNavItems with a validated icon enum', () => {
+    const props = PLAN_TOOL.input_schema.properties;
+
+    expect(props.contentBlocks.type).toBe('array');
+    expect(props.contentBlocks.items.properties.type.enum).toEqual(['list-item', 'stat', 'image-card', 'action']);
+    expect(props.contentBlocks.items.properties.icon.enum).toContain('home');
+
+    expect(props.screenNavItems).toBeDefined();
+    expect(props.screenNavItems.type).toBe('array');
+    expect(props.screenNavItems.items.properties.icon.enum).toContain('home');
+    expect(props.screenNavItems.items.required).toEqual(['label', 'icon']);
+  });
+});

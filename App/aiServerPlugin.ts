@@ -91,6 +91,8 @@ const CLASSIFY_TOOL = {
   },
 };
 
+const NAV_ICON_ENUM = ['home', 'search', 'settings', 'user', 'notification', 'chat', 'calendar', 'heart', 'list', 'grid'];
+
 export const PLAN_TOOL = {
   name: 'author_build_plan',
   description: 'Author the content and structure for a Reliance-branded visual preview.',
@@ -134,8 +136,33 @@ export const PLAN_TOOL = {
       screenTitle: { type: 'string', description: 'App screens: the top bar / screen title.' },
       contentBlocks: {
         type: 'array',
-        description: 'App screens: short labels for the content blocks on the screen.',
-        items: { type: 'string' },
+        description:
+          'App screens: 2-5 content blocks below the hero image, mixing the types below. image-card blocks reuse the single generated hero image (imageSubject/imageAction/imageLocation/imageFraming) — never author a separate image per block.',
+        items: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['list-item', 'stat', 'image-card', 'action'] },
+            icon: { type: 'string', enum: NAV_ICON_ENUM, description: 'list-item only, optional leading icon.' },
+            title: { type: 'string', description: 'list-item only.' },
+            subtitle: { type: 'string', description: 'list-item only, optional.' },
+            value: { type: 'string', description: 'stat only: the large number/value shown, e.g. "12" or "₹2,400".' },
+            label: { type: 'string', description: 'stat only (caption) or action only (button label).' },
+            caption: { type: 'string', description: 'image-card only: caption shown under the reused hero image.' },
+          },
+          required: ['type'],
+        },
+      },
+      screenNavItems: {
+        type: 'array',
+        description: 'App screens: 2-5 bottom nav items for this specific app, replacing the generic Home/Search/Settings default.',
+        items: {
+          type: 'object',
+          properties: {
+            label: { type: 'string' },
+            icon: { type: 'string', enum: NAV_ICON_ENUM },
+          },
+          required: ['label', 'icon'],
+        },
       },
       socialFormat: { type: 'string', enum: ['square', 'story', 'linkedin', 'carousel'] },
       badgeLabel: { type: 'string', description: 'Social: small badge/tag text, e.g. "New" or "Live".' },

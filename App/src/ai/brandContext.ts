@@ -29,4 +29,9 @@ business/feature highlights (the sections field), then optionally a quote/spotli
 from a named person, then optionally 2-3 short news/update items, then a closing
 contact line. Not every field is required for every build — skip what doesn't fit a
 short, focused brief.
+
+Structure an app-screen build the same way: top bar, then an optional hero image, then
+2-5 content blocks mixing list-item/stat/image-card/action — whichever fit the screen's
+real purpose — then a bottom nav that reflects the actual app being built, not a
+generic Home/Search/Settings default.
 `.trim();
