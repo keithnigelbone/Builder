@@ -33,9 +33,6 @@ export function StartScreen({ prompt, onPromptChange, onSubmitPrompt, onSelectCa
           <Text variant="display" size="M" textAlign="center">
             Reliance Builder
           </Text>
-          <Text variant="body" size="M" appearance="neutral" textAlign="center">
-            Build on-brand, ready-to-use ideas in seconds.
-          </Text>
         </Container>
 
         <Container variant="full-bleed" layout="flex" gap="2" style={{ width: '100%' }}>
