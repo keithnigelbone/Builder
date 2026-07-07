@@ -22,10 +22,7 @@ export const DIMENSIONS: Record<BuildCategoryId, DimensionVariant[]> = {
     { id: 'tablet', label: 'Tablet', width: 768, height: 1024 },
     { id: 'mobile', label: 'Mobile', width: 375, height: 812 },
   ],
-  'app-screens': [
-    { id: 'mobile', label: 'Mobile', width: 390, height: 844 },
-    { id: 'desktop', label: 'Desktop', width: 1440, height: 1024 },
-  ],
+  'app-screens': [{ id: 'mobile', label: 'Mobile', width: 390, height: 844 }],
   slides: [{ id: 'default', label: '16:9', width: 1920, height: 1080 }],
   'social-media': [
     { id: 'square', label: 'Square post', width: 1080, height: 1080 },
