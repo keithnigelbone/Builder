@@ -43,7 +43,7 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
         {category === 'website' && <WebsitePreview plan={plan} />}
         {category === 'app-screens' && <AppScreenPreview plan={plan} />}
         {category === 'slides' && <SlidePreview plan={plan} />}
-        {category === 'social-media' && <SocialPreview plan={plan} />}
+        {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} />}
         {category === 'motion' && <MotionPreview plan={plan} feelingAnswerId={answers['motion-feeling']} />}
       </PreviewFrame>
     </Surface>

@@ -1,4 +1,16 @@
 import '@testing-library/jest-dom/vitest';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
+
+// @testing-library/react auto-registers its own afterEach(cleanup) only when
+// it detects test-framework globals (e.g. Jest's implicit globals). Vitest
+// globals aren't enabled here (vitest.config.ts has no `test.globals: true`),
+// so without this, unmounted DOM from one test's render() carries over into
+// the next test in the same file — queries like getByRole can then match
+// leftover elements from a previous test and fail with "multiple elements".
+afterEach(() => {
+  cleanup();
+});
 
 // jsdom has no layout engine and no matchMedia implementation; components like
 // StepProgress read `window.matchMedia('(prefers-reduced-motion: reduce)')`

@@ -1,3 +1,4 @@
+import type { ImageAspectRatio } from '@jds4/oneui-react';
 import type { BuildCategoryId } from '../types';
 
 export interface DimensionVariant {
@@ -41,4 +42,34 @@ export function getDefaultVariant(category: BuildCategoryId): DimensionVariant {
 
 export function getVariant(category: BuildCategoryId, variantId: string | undefined): DimensionVariant {
   return DIMENSIONS[category].find((v) => v.id === variantId) ?? getDefaultVariant(category);
+}
+
+type FixedAspectRatio = Exclude<ImageAspectRatio, 'auto'>;
+
+const ASPECT_RATIO_PRESETS: { id: FixedAspectRatio; ratio: number }[] = [
+  { id: '1:2', ratio: 1 / 2 },
+  { id: '9:21', ratio: 9 / 21 },
+  { id: '9:16', ratio: 9 / 16 },
+  { id: '2:3', ratio: 2 / 3 },
+  { id: '3:4', ratio: 3 / 4 },
+  { id: '1:1', ratio: 1 },
+  { id: '4:3', ratio: 4 / 3 },
+  { id: '3:2', ratio: 3 / 2 },
+  { id: '16:9', ratio: 16 / 9 },
+  { id: '2:1', ratio: 2 },
+  { id: '21:9', ratio: 21 / 9 },
+];
+
+/**
+ * @jds4/oneui-react's `Image` only accepts a fixed set of aspect-ratio
+ * presets (see `ImageAspectRatio`), not an arbitrary ratio — this maps a
+ * canvas's real width/height to the closest preset, so a preview's hero
+ * image actually matches the canvas it's rendered on instead of being
+ * hardcoded to one ratio regardless of which variant is selected.
+ */
+export function closestImageAspectRatio(width: number, height: number): FixedAspectRatio {
+  const ratio = width / height;
+  return ASPECT_RATIO_PRESETS.reduce((best, candidate) =>
+    Math.abs(candidate.ratio - ratio) < Math.abs(best.ratio - ratio) ? candidate : best,
+  ).id;
 }
