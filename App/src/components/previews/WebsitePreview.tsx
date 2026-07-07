@@ -1,4 +1,4 @@
-import { Container, Text, Button, Image } from '@jds4/oneui-react';
+import { Container, Text, Button, Image, Surface } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
 import { describeHeroImage } from '../../ai/schema';
 import { BrandMark } from '../BrandMark';
@@ -70,6 +70,77 @@ export function WebsitePreview({ plan }: { plan: BuildPlan }) {
           ))}
         </Container>
       )}
+
+      {plan.quote && (
+        <Container variant="full-bleed" width="full" padding="10" style={{ paddingTop: 0 }}>
+          <Surface mode="moderate" style={{ padding: 'var(--Spacing-8)', borderRadius: 'var(--Shape-3)' }}>
+            <Text variant="title" size="L">
+              "{plan.quote.text}"
+            </Text>
+            <Text variant="label" size="M" weight="high">
+              {plan.quote.name}
+            </Text>
+            <Text variant="body" size="S" appearance="neutral">
+              {plan.quote.title}
+            </Text>
+          </Surface>
+        </Container>
+      )}
+
+      {plan.newsItems && plan.newsItems.length > 0 && (
+        <Container variant="full-bleed" layout="grid" columns={Math.min(plan.newsItems.length, 3)} gap="6" width="full" padding="10">
+          {plan.newsItems.map((item) => (
+            <Surface key={item.title} mode="subtle" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
+              <div
+                style={{
+                  aspectRatio: '16 / 9',
+                  background: 'var(--Neutral-Subtle)',
+                  borderRadius: 'var(--Shape-2)',
+                  marginBottom: 'var(--Spacing-3)',
+                }}
+              />
+              <Text variant="label" size="S" appearance="neutral">
+                {item.date}
+              </Text>
+              <Text variant="title" size="S">
+                {item.title}
+              </Text>
+            </Surface>
+          ))}
+        </Container>
+      )}
+
+      {plan.contactHeadline && (
+        <Container variant="full-bleed" width="full">
+          <Surface mode="moderate" style={{ padding: 'var(--Spacing-10)', textAlign: 'center' }}>
+            <Text variant="display" size="M">
+              {plan.contactHeadline}
+            </Text>
+          </Surface>
+        </Container>
+      )}
+
+      <Container
+        variant="full-bleed"
+        layout="flex"
+        direction="column"
+        gap="3"
+        width="full"
+        padding="10"
+        style={{ borderTop: '1px solid var(--Neutral-Stroke-Low)' }}
+      >
+        <BrandMark size={20} />
+        <Container variant="full-bleed" layout="flex" gap="4" wrap>
+          {navItems.map((item) => (
+            <Text key={item} variant="label" size="S" appearance="neutral">
+              {item}
+            </Text>
+          ))}
+        </Container>
+        <Text variant="label" size="XS" appearance="neutral">
+          © Reliance
+        </Text>
+      </Container>
     </Container>
   );
 }
