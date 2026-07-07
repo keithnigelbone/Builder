@@ -19,7 +19,7 @@ export function WebsitePreview({ plan }: { plan: BuildPlan }) {
         style={{ borderBottom: '1px solid var(--Neutral-Stroke-Low)' }}
       >
         <BrandMark size={22} />
-        <Container variant="full-bleed" layout="flex" align="center" gap="5">
+        <Container variant="full-bleed" layout="flex" align="center" gap="5" width="fit">
           {navItems.map((item) => (
             <Text key={item} variant="label" size="M" appearance="neutral">
               {item}
