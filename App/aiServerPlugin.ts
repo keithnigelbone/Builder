@@ -236,7 +236,13 @@ async function callAnthropic(apiKey: string, system: string, userContent: string
     },
     body: JSON.stringify({
       model: ANTHROPIC_MODEL,
-      max_tokens: 1024,
+      // 1024 was fine before the slides deck array existed; a "slides" plan
+      // call authoring up to 10 slide objects plus reasoning and image
+      // fields routinely needs more than that and was silently truncating
+      // (observed live: stop_reason "max_tokens", with the slides array
+      // dropped from the response entirely while every field generated
+      // before it came through complete).
+      max_tokens: 4096,
       system,
       messages: [{ role: 'user', content: userContent }],
       tools: [tool],
@@ -249,7 +255,15 @@ async function callAnthropic(apiKey: string, system: string, userContent: string
     throw new Error(`Anthropic API error ${res.status}: ${text.slice(0, 300)}`);
   }
 
-  const data = (await res.json()) as { content: Array<{ type: string; input?: unknown }> };
+  const data = (await res.json()) as { content: Array<{ type: string; input?: unknown }>; stop_reason?: string };
+  // A max_tokens stop means the tool-call JSON was cut off mid-generation —
+  // whatever fields survived may look complete but the response as a whole
+  // is not what Claude intended. Fail loudly here so the client falls back
+  // to fallbackPlan.ts's honest placeholder content instead of silently
+  // rendering a truncated, partially-AI-authored build.
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error('Anthropic response was truncated (max_tokens) before completing the tool call.');
+  }
   const toolUse = data.content.find((block) => block.type === 'tool_use');
   if (!toolUse) throw new Error('Anthropic response had no tool_use block');
   return toolUse.input;
