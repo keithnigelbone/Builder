@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { requestClassification, requestMotionVideo, requestPlan } from '../../../App/src/ai/client';
+import { requestClassification, requestPlan } from '../../../App/src/ai/client';
 import type { BuildPlan } from '../../../App/src/ai/schema';
 
 function jsonResponse(status: number, body: unknown): Response {
@@ -131,37 +131,5 @@ describe('requestPlan', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalledWith('/api/gemini-image', expect.anything());
-  });
-});
-
-describe('requestMotionVideo', () => {
-  it('errors locally without calling the proxy when the plan has no art-directed scene', async () => {
-    const fetchMock = vi.fn();
-    vi.stubGlobal('fetch', fetchMock);
-
-    const result = await requestMotionVideo({} as BuildPlan);
-
-    expect(result.error).toMatch(/no art-directed scene/);
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-
-  it('returns the video URL from a successful proxy response', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(jsonResponse(200, { result: { videoUrl: 'blob:video' } })),
-    );
-
-    const plan: BuildPlan = {
-      imageSubject: 's',
-      imageAction: 'a',
-      imageLocation: 'l',
-      imageFraming: 'f',
-      recommendedComponentNames: [],
-      reasoning: '',
-    };
-
-    const result = await requestMotionVideo(plan);
-
-    expect(result.videoUrl).toBe('blob:video');
   });
 });

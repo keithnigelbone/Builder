@@ -3,7 +3,7 @@ import { Container, Text, CircularProgressIndicator, Image, Button } from '@jds4
 import type { BuildPlan } from '../../ai/schema';
 import { describeHeroImage } from '../../ai/schema';
 import { pickMotionTokens } from '../../data/motionMapping';
-import { requestMotionVideo } from '../../ai/client';
+import { requestMotionVideo } from '../../media/videoGenerator';
 
 type VideoState = { status: 'idle' | 'generating' | 'done' | 'error'; videoUrl?: string; error?: string };
 

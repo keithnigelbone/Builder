@@ -3,7 +3,7 @@ import { BUILD_CATEGORIES } from '../data/buildCategories';
 import { AVAILABLE_COMPONENTS } from '../data/oneuiRegistry';
 import { fallbackClassify, fallbackPlan } from './fallbackPlan';
 import type { AIResult, BuildPlan, ClassifyResult, FollowUpQuestion } from './schema';
-import { RELIANCE_VISUAL_BASELINE, RELIANCE_VISUAL_BASELINE_AERIAL } from './artDirection';
+import { requestHeroImage } from '../media/imageGenerator';
 
 const VALID_CATEGORY_IDS = new Set(BUILD_CATEGORIES.map((c) => c.id));
 const AVAILABLE_COMPONENT_NAMES = new Set(AVAILABLE_COMPONENTS.map((c) => c.name));
@@ -44,30 +44,6 @@ function sanitizeFollowUps(raw: unknown): FollowUpQuestion[] {
         !!q && typeof q.id === 'string' && typeof q.prompt === 'string' && Array.isArray(q.options) && q.options.length >= 2,
     )
     .slice(0, 2);
-}
-
-function assembleImagePrompt(plan: Pick<BuildPlan, 'imageSubject' | 'imageAction' | 'imageLocation' | 'imageFraming' | 'imageIsAerial' | 'imageColourNotes'>): string {
-  const baseline = plan.imageIsAerial
-    ? RELIANCE_VISUAL_BASELINE_AERIAL.replace('{{colourNotes}}', plan.imageColourNotes || 'natural')
-    : RELIANCE_VISUAL_BASELINE;
-  return [plan.imageSubject, plan.imageAction, plan.imageLocation, plan.imageFraming, baseline].join('\n');
-}
-
-async function requestHeroImage(plan: BuildPlan): Promise<string | undefined> {
-  if (!plan.imageSubject || !plan.imageAction || !plan.imageLocation || !plan.imageFraming) return undefined;
-
-  try {
-    const res = await fetch('/api/gemini-image', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt: assembleImagePrompt(plan) }),
-    });
-    const json = await res.json();
-    if (!res.ok) return undefined;
-    return typeof json.result?.dataUrl === 'string' ? json.result.dataUrl : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 export async function requestClassification(prompt: string): Promise<AIResult<ClassifyResult>> {
@@ -131,23 +107,4 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
   data.heroImage = await requestHeroImage(data);
 
   return { source: 'claude', model: response.model, data };
-}
-
-export async function requestMotionVideo(plan: BuildPlan): Promise<{ videoUrl?: string; error?: string }> {
-  if (!plan.imageSubject || !plan.imageAction || !plan.imageLocation || !plan.imageFraming) {
-    return { error: 'This build has no art-directed scene to animate yet.' };
-  }
-
-  try {
-    const res = await fetch('/api/higgsfield-video', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt: assembleImagePrompt(plan), startImageDataUrl: plan.heroImage }),
-    });
-    const json = await res.json();
-    if (!res.ok) return { error: json.error ?? `HTTP ${res.status}` };
-    return { videoUrl: typeof json.result?.videoUrl === 'string' ? json.result.videoUrl : undefined };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Network error reaching the local Higgsfield proxy' };
-  }
 }
