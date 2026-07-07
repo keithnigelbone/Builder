@@ -1,8 +1,12 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { BuildCategoryId } from './src/types';
 import { RELIANCE_BRAND_VOICE } from './src/ai/brandVoice';
 import { RELIANCE_ART_DIRECTION } from './src/ai/artDirection';
 import { RELIANCE_REAL_CONTEXT } from './src/ai/brandContext';
+import { getPatternsForCategory } from './src/data/patternRegistry';
+import { getUiUxQualityHints } from './src/mcp/uiUxProAdapter';
+import { getFramerQualityHints } from './src/mcp/framerAdapter';
 
 /**
  * Dev-only local proxy to the Anthropic API.
@@ -47,6 +51,13 @@ ${RELIANCE_BRAND_VOICE}
 
 ${RELIANCE_REAL_CONTEXT}`;
 
+function buildCritiqueSystemPrompt(category: string): string {
+  const hints = [...getUiUxQualityHints(category), ...(getFramerQualityHints() ?? [])];
+  return `${RELIANCE_SYSTEM_PROMPT}\n\n${RELIANCE_ART_DIRECTION}\n\nQuality rubric — judge the draft against every line before deciding what to revise:\n${hints
+    .map((h) => `- ${h}`)
+    .join('\n')}`;
+}
+
 interface ClassifyRequestBody {
   type: 'classify';
   prompt: string;
@@ -61,7 +72,14 @@ interface PlanRequestBody {
   availableComponents: string[];
 }
 
-type RequestBody = ClassifyRequestBody | PlanRequestBody;
+interface CritiqueRequestBody {
+  type: 'critique';
+  category: string;
+  prompt: string;
+  draftPlan: Record<string, unknown>;
+}
+
+type RequestBody = ClassifyRequestBody | PlanRequestBody | CritiqueRequestBody;
 
 const CLASSIFY_TOOL = {
   name: 'classify_request',
@@ -212,6 +230,12 @@ export const PLAN_TOOL = {
         type: 'string',
         description: 'Preferred canvas variant for this format, e.g. "desktop"/"tablet"/"mobile" for website.',
       },
+      patternId: {
+        type: 'string',
+        enum: [...getPatternsForCategory('website'), ...getPatternsForCategory('app-screens')].map((p) => p.id),
+        description:
+          'Website/app-screens only: the curated Reliance layout pattern that best fits this brief — pick from the ids listed for the current output format in the request. Omit for slides/social/motion.',
+      },
       recommendedComponentNames: {
         type: 'array',
         items: { type: 'string' },
@@ -238,12 +262,39 @@ export const PLAN_TOOL = {
   },
 };
 
+/** Plan fields the critique pass must never touch — layout, canvas, and component choices are structural. */
+const CRITIQUE_EXCLUDED_FIELDS = new Set([
+  'patternId',
+  'dimensionVariant',
+  'recommendedComponentNames',
+  'socialFormat',
+  'motionConcept',
+  'reasoning',
+]);
+
+export const CRITIQUE_TOOL = {
+  name: 'critique_and_revise',
+  description:
+    'Review the drafted plan against the quality rubric. Return ONLY the content fields that should improve (rewritten in full), plus a one-line qualityNotes. Never change the layout pattern, canvas, or component choices — those fields do not exist on this tool.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      ...Object.fromEntries(Object.entries(PLAN_TOOL.input_schema.properties).filter(([key]) => !CRITIQUE_EXCLUDED_FIELDS.has(key))),
+      qualityNotes: {
+        type: 'string',
+        description: 'One sentence: what the review checked and what it improved — or that the draft was already strong.',
+      },
+    },
+    required: ['qualityNotes'],
+  },
+};
+
 async function callAnthropic(
   apiKey: string,
   model: string,
   system: string,
   userContent: string,
-  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL,
+  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL | typeof CRITIQUE_TOOL,
 ) {
   const res = await fetch(ANTHROPIC_API_URL, {
     method: 'POST',
@@ -297,7 +348,7 @@ export async function callAnthropicWithFallback(
   apiKey: string,
   system: string,
   userContent: string,
-  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL,
+  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL | typeof CRITIQUE_TOOL,
 ): Promise<{ input: unknown; model: string }> {
   const { primary, fallback } = resolveModels();
   try {
@@ -370,10 +421,31 @@ export function claudeApiProxy(): Plugin {
                 : 'No follow-up answers were needed.',
               body.refinement ? `The user just asked to refine it further: "${body.refinement}"` : '',
               `Components available to recommend from (pick only from this real list): ${body.availableComponents.join(', ')}`,
+              `Curated layout patterns for this format (choose patternId from these ids only): ${getPatternsForCategory(
+                body.category as BuildCategoryId,
+              )
+                .map((p) => `${p.id} — ${p.whenToUse}`)
+                .join('; ') || 'none — omit patternId'}`,
             ].filter(Boolean);
 
             const planSystemPrompt = `${RELIANCE_SYSTEM_PROMPT}\n\n${RELIANCE_ART_DIRECTION}`;
             const { input, model } = await callAnthropicWithFallback(apiKey, planSystemPrompt, contextLines.join('\n'), PLAN_TOOL);
+            sendJson(res, 200, { result: input, model });
+            return;
+          }
+
+          if (body.type === 'critique') {
+            const { input, model } = await callAnthropicWithFallback(
+              apiKey,
+              buildCritiqueSystemPrompt(body.category),
+              [
+                `Output format: ${body.category}`,
+                `Original request: "${body.prompt}"`,
+                `Drafted plan (JSON): ${JSON.stringify(body.draftPlan)}`,
+                'Return only the fields that need improving, rewritten in full, plus qualityNotes. If the draft is already strong, return just qualityNotes.',
+              ].join('\n'),
+              CRITIQUE_TOOL,
+            );
             sendJson(res, 200, { result: input, model });
             return;
           }
