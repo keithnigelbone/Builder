@@ -72,4 +72,21 @@ describe('fallbackPlan', () => {
       { label: 'Settings', icon: 'settings' },
     ]);
   });
+
+  it('always returns a fixed 3-slide deck for slides, regardless of answers', () => {
+    const result = fallbackPlan({ category: 'slides', prompt: '', answers: { 'slide-count': '10-plus' } }, 'x');
+
+    expect(result.data.slides).toEqual([
+      { slideType: 'cover', headline: 'A headline that sells the idea', subheadline: 'Supporting copy goes here.' },
+      { slideType: 'content', headline: 'Key message goes here', kicker: 'Section', body: 'Supporting detail goes here.' },
+      {
+        slideType: 'table',
+        headline: 'Key message goes here',
+        tableColumns: [
+          { header: 'Column one', items: ['Point one', 'Point two'] },
+          { header: 'Column two', items: ['Point one', 'Point two'] },
+        ],
+      },
+    ]);
+  });
 });

@@ -23,6 +23,21 @@ export type AppScreenBlock =
   | { type: 'image-card'; caption: string }
   | { type: 'action'; label: string };
 
+export type SlideType = 'cover' | 'divider' | 'content' | 'split-photo' | 'table';
+
+export interface SlideContent {
+  slideType: SlideType;
+  headline: string;
+  /** cover only. */
+  subheadline?: string;
+  /** content/split-photo only. */
+  body?: string;
+  /** content/split-photo only, optional eyebrow label. */
+  kicker?: string;
+  /** table only — 2-5 columns, each a header + 2-5 short bullet items. */
+  tableColumns?: { header: string; items: string[] }[];
+}
+
 /**
  * Content/structure authored by the AI layer for the chosen category. Every
  * field here is copy or structural choice — never a color, font, spacing, or
@@ -48,6 +63,8 @@ export interface BuildPlan {
   contentBlocks?: AppScreenBlock[];
   /** App screens: dynamic bottom nav items, replacing the generic Home/Search/Settings default. */
   screenNavItems?: { label: string; icon: string }[];
+  /** Slides: the full deck — each entry is one slide's content. The shared plan.heroImage (if any) is reused by any slide that wants an image; slides never author their own. */
+  slides?: SlideContent[];
   socialFormat?: 'square' | 'story' | 'linkedin' | 'carousel';
   badgeLabel?: string;
   motionConcept?: 'loader' | 'transition' | 'intro-animation' | 'product-reveal' | 'micro-interaction';

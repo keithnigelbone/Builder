@@ -121,6 +121,7 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     newsItems: asArray(raw.newsItems),
     contentBlocks: asArray(raw.contentBlocks),
     screenNavItems: asArray(raw.screenNavItems),
+    slides: asArray(raw.slides),
     recommendedComponentNames,
     reasoning: raw.reasoning || 'Authored by Claude.',
   };
