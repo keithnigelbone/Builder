@@ -31,6 +31,12 @@ export interface BuildPlan {
   ctaLabel?: string;
   navItems?: string[];
   sections?: { title: string; body: string }[];
+  /** Website: an optional founder/customer spotlight quote below the sections grid. */
+  quote?: { text: string; name: string; title: string };
+  /** Website: an optional 2-3 item news/updates grid. */
+  newsItems?: { title: string; date: string }[];
+  /** Website: an optional closing contact/CTA band headline, e.g. "Get in touch." */
+  contactHeadline?: string;
   screenTitle?: string;
   contentBlocks?: string[];
   socialFormat?: 'square' | 'story' | 'linkedin' | 'carousel';

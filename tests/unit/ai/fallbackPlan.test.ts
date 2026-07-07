@@ -47,4 +47,13 @@ describe('fallbackPlan', () => {
     expect(withAnswer.data.recommendedComponentNames).toContain('Chip');
     expect(withoutAnswer.data.recommendedComponentNames).not.toContain('Chip');
   });
+
+  it('includes generic quote, news, and contact content for every category', () => {
+    const result = fallbackPlan({ category: 'website', prompt: '', answers: {} }, 'x');
+
+    expect(result.data.quote).toEqual({ text: 'A short quote goes here.', name: 'Name', title: 'Title' });
+    expect(result.data.newsItems).toHaveLength(3);
+    expect(result.data.newsItems?.[0]).toEqual({ title: 'Update headline', date: 'Date' });
+    expect(result.data.contactHeadline).toBe('Get in touch.');
+  });
 });

@@ -60,6 +60,13 @@ export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPl
     ctaLabel: 'Get started',
     navItems: ['Product', 'Pricing'],
     sections: [],
+    quote: { text: 'A short quote goes here.', name: 'Name', title: 'Title' },
+    newsItems: [
+      { title: 'Update headline', date: 'Date' },
+      { title: 'Update headline', date: 'Date' },
+      { title: 'Update headline', date: 'Date' },
+    ],
+    contactHeadline: 'Get in touch.',
     screenTitle: 'Home',
     contentBlocks: ['Content block', 'Content block'],
     socialFormat: 'square',
