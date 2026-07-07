@@ -24,26 +24,34 @@ export function ResultScreen({ request, busyLabel, onRefine, onStartOver }: Resu
   const recommendedComponents = useMemo(() => recommendComponents(category.id, answers), [category.id, answers]);
   const tokensByCategory = useMemo(() => collectTokensByCategory(recommendedComponents), [recommendedComponents]);
 
+  // Only the prose sections (heading, summary, refine prompt, build details)
+  // get the narrow 880px reading column — readability doesn't need more than
+  // that. The live preview is deliberately left at the page's full width:
+  // it's a dimension-accurate canvas (see PreviewFrame/previewFit.ts), and
+  // capping its container the same as the prose meant it could never render
+  // wider than ~840px no matter how wide the screen was.
   return (
     <Surface mode="default" style={{ minHeight: '100vh', padding: '48px 24px' }}>
-      <Container variant="full-bleed" layout="flex" direction="column" gap="6" width="full" style={{ maxWidth: 880, margin: '0 auto' }}>
-        <Container variant="full-bleed" layout="flex" align="center" justify="space-between">
-          <Container variant="full-bleed" layout="flex" direction="column" gap="1">
-            <Text variant="label" size="S" appearance="primary">
-              {category.label}
-            </Text>
-            <Text variant="title" size="L">
-              Here's what we'd build
-            </Text>
+      <Container variant="full-bleed" layout="flex" direction="column" gap="6" width="full" style={{ maxWidth: 1600, margin: '0 auto' }}>
+        <Container variant="full-bleed" layout="flex" direction="column" gap="6" width="full" style={{ maxWidth: 880, margin: '0 auto' }}>
+          <Container variant="full-bleed" layout="flex" align="center" justify="space-between">
+            <Container variant="full-bleed" layout="flex" direction="column" gap="1">
+              <Text variant="label" size="S" appearance="primary">
+                {category.label}
+              </Text>
+              <Text variant="title" size="L">
+                Here's what we'd build
+              </Text>
+            </Container>
+            <Button attention="low" onClick={onStartOver}>
+              Start over
+            </Button>
           </Container>
-          <Button attention="low" onClick={onStartOver}>
-            Start over
-          </Button>
+
+          <RequestSummary request={request} />
+
+          <Divider />
         </Container>
-
-        <RequestSummary request={request} />
-
-        <Divider />
 
         <Container variant="full-bleed" layout="flex" direction="column" gap="2" width="full">
           <BuildPreview category={category.id} answers={answers} plan={plan} />
@@ -57,13 +65,15 @@ export function ResultScreen({ request, busyLabel, onRefine, onStartOver }: Resu
           )}
         </Container>
 
-        <Divider />
+        <Container variant="full-bleed" layout="flex" direction="column" gap="6" width="full" style={{ maxWidth: 880, margin: '0 auto' }}>
+          <Divider />
 
-        <RefinePrompt refinements={refinements} onAddRefinement={onRefine} disabled={!!busyLabel} />
+          <RefinePrompt refinements={refinements} onAddRefinement={onRefine} disabled={!!busyLabel} />
 
-        <Divider />
+          <Divider />
 
-        <BuildDetails components={recommendedComponents} tokensByCategory={tokensByCategory} request={request} />
+          <BuildDetails components={recommendedComponents} tokensByCategory={tokensByCategory} request={request} />
+        </Container>
       </Container>
     </Surface>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Container, SelectableButton, Surface } from '@jds4/oneui-react';
 import { DIMENSIONS, type DimensionVariant } from '../data/previewDimensions';
+import { computeFitFrame } from './previewFit';
 import type { BuildCategoryId } from '../types';
 
 type Chrome = 'browser' | 'phone' | 'none';
@@ -38,9 +39,12 @@ export function PreviewFrame({ category, variantId, onVariantChange, chrome, chi
   }, []);
 
   // Cap the visual height so tall formats (story, mobile) don't dominate the
-  // page — the canvas is still built at real width, just capped on scale.
+  // page — width is always maximized to fill the available panel, and any
+  // excess past the cap scrolls instead of shrinking the whole frame (which
+  // previously left landscape formats like website/desktop narrower than the
+  // panel even when there was room to show them wider).
   const maxVisualHeight = 560;
-  const scale = Math.min(containerWidth / variant.width, maxVisualHeight / variant.height, 1);
+  const { scale, frameWidth, frameHeight, scrollable } = computeFitFrame(containerWidth, variant, maxVisualHeight);
 
   return (
     <Container variant="full-bleed" layout="flex" direction="column" gap="3" width="full">
@@ -55,7 +59,7 @@ export function PreviewFrame({ category, variantId, onVariantChange, chrome, chi
       )}
 
       <div ref={containerRef} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ width: variant.width * scale, height: variant.height * scale }}>
+        <div style={{ width: frameWidth, height: frameHeight, overflow: scrollable ? 'hidden auto' : 'visible' }}>
           <FrameChrome chrome={chrome} width={variant.width} height={variant.height} scale={scale}>
             {children}
           </FrameChrome>
