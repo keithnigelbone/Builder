@@ -91,7 +91,7 @@ const CLASSIFY_TOOL = {
   },
 };
 
-const PLAN_TOOL = {
+export const PLAN_TOOL = {
   name: 'author_build_plan',
   description: 'Author the content and structure for a Reliance-branded visual preview.',
   input_schema: {
@@ -107,6 +107,29 @@ const PLAN_TOOL = {
         type: 'array',
         description: 'Website: supporting feature/benefit blocks below the hero.',
         items: { type: 'object', properties: { title: { type: 'string' }, body: { type: 'string' } }, required: ['title', 'body'] },
+      },
+      quote: {
+        type: 'object',
+        description: 'Website: an optional founder/customer spotlight quote — only include when it genuinely fits the brief.',
+        properties: {
+          text: { type: 'string' },
+          name: { type: 'string' },
+          title: { type: 'string' },
+        },
+        required: ['text', 'name', 'title'],
+      },
+      newsItems: {
+        type: 'array',
+        description: 'Website: an optional 2-3 item news/updates grid.',
+        items: {
+          type: 'object',
+          properties: { title: { type: 'string' }, date: { type: 'string' } },
+          required: ['title', 'date'],
+        },
+      },
+      contactHeadline: {
+        type: 'string',
+        description: 'Website: an optional closing contact/CTA band headline, e.g. "Get in touch."',
       },
       screenTitle: { type: 'string', description: 'App screens: the top bar / screen title.' },
       contentBlocks: {

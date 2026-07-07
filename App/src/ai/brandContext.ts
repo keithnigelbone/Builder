@@ -23,4 +23,10 @@ Businesses, Sustainability (decarbonisation, net-zero, HSE), Investors, Careers,
 & Media, eB2B (customers, suppliers, notices). Reliance Foundation and its impact
 figures (e.g. "97 million lives impacted") are a legitimate scale reference for
 CSR/impact copy — don't invent a bigger or different number.
+
+Structure a website build the way ril.com's real page is structured: hero, then a few
+business/feature highlights (the sections field), then optionally a quote/spotlight
+from a named person, then optionally 2-3 short news/update items, then a closing
+contact line. Not every field is required for every build — skip what doesn't fit a
+short, focused brief.
 `.trim();
