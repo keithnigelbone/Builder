@@ -23,7 +23,7 @@ export type AppScreenBlock =
   | { type: 'image-card'; caption: string }
   | { type: 'action'; label: string };
 
-export type SlideType = 'cover' | 'divider' | 'content' | 'split-photo' | 'table';
+export type SlideType = 'cover' | 'divider' | 'content' | 'split-photo' | 'table' | 'stat' | 'closing';
 
 export interface SlideContent {
   slideType: SlideType;
@@ -36,6 +36,16 @@ export interface SlideContent {
   kicker?: string;
   /** table only — 2-5 columns, each a header + 2-5 short bullet items. */
   tableColumns?: { header: string; items: string[] }[];
+  /** stat only: the single large number/value the slide is about, e.g. "42%" or "₹2,400 Cr". */
+  statValue?: string;
+  /** stat only: one-line caption under the value. */
+  statLabel?: string;
+}
+
+/** Social carousel: one frame's content — rendered at 1080×1080 like a mini slide. */
+export interface CarouselFrame {
+  headline: string;
+  body?: string;
 }
 
 /**
@@ -66,6 +76,8 @@ export interface BuildPlan {
   /** Slides: the full deck — each entry is one slide's content. The shared plan.heroImage (if any) is reused by any slide that wants an image; slides never author their own. */
   slides?: SlideContent[];
   socialFormat?: 'square' | 'story' | 'linkedin' | 'carousel';
+  /** Social carousel only: 3-5 frames, navigated like the slides deck. */
+  carouselFrames?: CarouselFrame[];
   badgeLabel?: string;
   motionConcept?: 'loader' | 'transition' | 'intro-animation' | 'product-reveal' | 'micro-interaction';
   motionDescription?: string;
@@ -85,6 +97,15 @@ export interface BuildPlan {
   heroImage?: string;
   /** Names the AI picked — always re-validated against the real registry before use. */
   recommendedComponentNames: string[];
+  /**
+   * Curated layout pattern for this build — always validated against
+   * data/patternRegistry.ts before rendering, exactly like component names.
+   * A free Claude choice only for website/app-screens; derived from
+   * socialFormat/motionConcept for social/motion, fixed to "deck" for slides.
+   */
+  patternId?: string;
+  /** One-line summary from the critique pass — shown in Build details. */
+  qualityNotes?: string;
   reasoning: string;
 }
 

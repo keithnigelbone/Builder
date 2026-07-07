@@ -73,7 +73,7 @@ describe('fallbackPlan', () => {
     ]);
   });
 
-  it('always returns a fixed 3-slide deck for slides, regardless of answers', () => {
+  it('always returns a fixed 5-slide deck for slides, regardless of answers', () => {
     const result = fallbackPlan({ category: 'slides', prompt: '', answers: { 'slide-count': '10-plus' } }, 'x');
 
     expect(result.data.slides).toEqual([
@@ -87,6 +87,8 @@ describe('fallbackPlan', () => {
           { header: 'Column two', items: ['Point one', 'Point two'] },
         ],
       },
+      { slideType: 'stat', headline: 'A number that matters', statValue: '42%', statLabel: 'Stat label' },
+      { slideType: 'closing', headline: 'Thank you.' },
     ]);
   });
 });

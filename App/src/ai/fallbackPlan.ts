@@ -50,10 +50,24 @@ const HEADLINE_BY_CATEGORY: Record<BuildCategoryId, string> = {
   motion: 'Motion concept',
 };
 
+/**
+ * Literal registry-default pattern IDs (see data/patternRegistry.ts). Kept as
+ * literals — not a registry import — so this module stays dependency-light;
+ * the registry's own test asserts these IDs really exist there.
+ */
+const PATTERN_BY_CATEGORY: Record<BuildCategoryId, string> = {
+  website: 'product-story',
+  'app-screens': 'dashboard',
+  slides: 'deck',
+  'social-media': 'announcement',
+  motion: 'loader',
+};
+
 export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPlan> {
   const components = recommendComponents(input.category, input.answers);
   const base: BuildPlan = {
     headline: HEADLINE_BY_CATEGORY[input.category],
+    patternId: PATTERN_BY_CATEGORY[input.category],
     subheadline: 'Supporting copy goes here.',
     body: 'Supporting detail goes here.',
     kicker: 'Section',
@@ -90,8 +104,15 @@ export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPl
           { header: 'Column two', items: ['Point one', 'Point two'] },
         ],
       },
+      { slideType: 'stat', headline: 'A number that matters', statValue: '42%', statLabel: 'Stat label' },
+      { slideType: 'closing', headline: 'Thank you.' },
     ],
     socialFormat: 'square',
+    carouselFrames: [
+      { headline: 'Frame one message', body: 'Supporting detail goes here.' },
+      { headline: 'Frame two message', body: 'Supporting detail goes here.' },
+      { headline: 'Frame three message' },
+    ],
     badgeLabel: 'New',
     motionConcept: 'loader',
     motionDescription: 'A steady, confident loading state.',
