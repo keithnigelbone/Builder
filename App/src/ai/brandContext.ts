@@ -1,0 +1,26 @@
+/**
+ * Real facts about Reliance Industries Limited, drawn from ril.com (the
+ * corporate site) — used to ground Claude-authored content in what's
+ * actually true, the same way schema.ts's `recommendedComponentNames` is
+ * re-validated against the real component registry rather than trusted as
+ * invented. Never a style guide (see brandVoice.ts for that) — just facts a
+ * generated build should stay consistent with instead of inventing its own.
+ */
+export const RELIANCE_REAL_CONTEXT = `
+Ground generated content in these real Reliance facts — never invent a competing
+tagline, business line, or scale claim that contradicts them:
+
+Tagline: "Growth is Life".
+Positioning: Reliance Industries Limited is a Fortune 500® company and the largest
+private-sector corporation in India.
+
+Real business lines — use these (or an obvious, clearly-related variant), never an
+invented one: Energy, Petrochemicals, Retail, Digital Services (Jio), New Energy
+Materials, Media & Entertainment.
+
+Real site sections a Reliance-branded page draws its structure from: About,
+Businesses, Sustainability (decarbonisation, net-zero, HSE), Investors, Careers, News
+& Media, eB2B (customers, suppliers, notices). Reliance Foundation and its impact
+figures (e.g. "97 million lives impacted") are a legitimate scale reference for
+CSR/impact copy — don't invent a bigger or different number.
+`.trim();

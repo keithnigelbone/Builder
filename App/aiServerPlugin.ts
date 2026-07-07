@@ -2,6 +2,7 @@ import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { RELIANCE_BRAND_VOICE } from './src/ai/brandVoice';
 import { RELIANCE_ART_DIRECTION } from './src/ai/artDirection';
+import { RELIANCE_REAL_CONTEXT } from './src/ai/brandContext';
 
 /**
  * Dev-only local proxy to the Anthropic API.
@@ -30,7 +31,9 @@ tokens, applied by the app after you respond. Your job is purely: understand int
 classify the right output format, ask sharp follow-up questions when useful, and author
 clear, presentation-ready CONTENT (headlines, copy, structure) for the chosen format.
 
-${RELIANCE_BRAND_VOICE}`;
+${RELIANCE_BRAND_VOICE}
+
+${RELIANCE_REAL_CONTEXT}`;
 
 interface ClassifyRequestBody {
   type: 'classify';
