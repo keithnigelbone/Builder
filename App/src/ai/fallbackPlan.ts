@@ -68,7 +68,17 @@ export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPl
     ],
     contactHeadline: 'Get in touch.',
     screenTitle: 'Home',
-    contentBlocks: ['Content block', 'Content block'],
+    contentBlocks: [
+      { type: 'list-item', icon: 'list', title: 'List item', subtitle: 'Supporting detail' },
+      { type: 'stat', value: '12', label: 'Stat label' },
+      { type: 'image-card', caption: 'Image caption' },
+      { type: 'action', label: 'Action' },
+    ],
+    screenNavItems: [
+      { label: 'Home', icon: 'home' },
+      { label: 'Search', icon: 'search' },
+      { label: 'Settings', icon: 'settings' },
+    ],
     socialFormat: 'square',
     badgeLabel: 'New',
     motionConcept: 'loader',

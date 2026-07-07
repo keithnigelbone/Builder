@@ -56,4 +56,20 @@ describe('fallbackPlan', () => {
     expect(result.data.newsItems?.[0]).toEqual({ title: 'Update headline', date: 'Date' });
     expect(result.data.contactHeadline).toBe('Get in touch.');
   });
+
+  it('includes typed content blocks and dynamic nav items for app-screens', () => {
+    const result = fallbackPlan({ category: 'app-screens', prompt: '', answers: {} }, 'x');
+
+    expect(result.data.contentBlocks).toEqual([
+      { type: 'list-item', icon: 'list', title: 'List item', subtitle: 'Supporting detail' },
+      { type: 'stat', value: '12', label: 'Stat label' },
+      { type: 'image-card', caption: 'Image caption' },
+      { type: 'action', label: 'Action' },
+    ]);
+    expect(result.data.screenNavItems).toEqual([
+      { label: 'Home', icon: 'home' },
+      { label: 'Search', icon: 'search' },
+      { label: 'Settings', icon: 'settings' },
+    ]);
+  });
 });

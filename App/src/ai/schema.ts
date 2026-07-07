@@ -17,6 +17,12 @@ export interface ClassifyResult {
   followUps: FollowUpQuestion[];
 }
 
+export type AppScreenBlock =
+  | { type: 'list-item'; icon?: string; title: string; subtitle?: string }
+  | { type: 'stat'; value: string; label: string }
+  | { type: 'image-card'; caption: string }
+  | { type: 'action'; label: string };
+
 /**
  * Content/structure authored by the AI layer for the chosen category. Every
  * field here is copy or structural choice — never a color, font, spacing, or
@@ -38,7 +44,10 @@ export interface BuildPlan {
   /** Website: an optional closing contact/CTA band headline, e.g. "Get in touch." */
   contactHeadline?: string;
   screenTitle?: string;
-  contentBlocks?: string[];
+  /** App screens: typed content blocks below the hero image. */
+  contentBlocks?: AppScreenBlock[];
+  /** App screens: dynamic bottom nav items, replacing the generic Home/Search/Settings default. */
+  screenNavItems?: { label: string; icon: string }[];
   socialFormat?: 'square' | 'story' | 'linkedin' | 'carousel';
   badgeLabel?: string;
   motionConcept?: 'loader' | 'transition' | 'intro-animation' | 'product-reveal' | 'micro-interaction';
