@@ -58,6 +58,12 @@ export default defineConfig(({ mode }) => {
     // package.json). Point Vite's caches back at the repo root instead of
     // letting it try to create node_modules/.vite inside App/.
     cacheDir: path.resolve(repoRoot, 'node_modules/.vite-app'),
+    // Allows the app to be reached through a localtunnel/.loca.lt URL for
+    // sharing a local preview — Vite otherwise rejects requests whose Host
+    // header it doesn't recognize (DNS-rebinding protection).
+    server: {
+      allowedHosts: ['.loca.lt'],
+    },
     esbuild: {
       jsx: 'automatic' as const,
     },
