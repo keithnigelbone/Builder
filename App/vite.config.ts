@@ -7,7 +7,7 @@ import { oneui } from '@jds4/oneui-vite-plugin';
 import { relianceTokenCoverage } from './relianceTokenCoveragePlugin';
 import { claudeApiProxy } from './aiServerPlugin';
 import { geminiImageProxy } from './geminiImageProxy';
-import { higgsfieldVideoProxy } from './higgsfieldVideoProxy';
+import { geminiVideoProxy } from './geminiVideoProxy';
 
 // No @vitejs/plugin-react here on purpose (keeping deps minimal, per project
 // convention) — Vite's built-in esbuild transform already handles .tsx via
@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => {
   if (env.ANTHROPIC_FALLBACK_MODEL) process.env.ANTHROPIC_FALLBACK_MODEL = env.ANTHROPIC_FALLBACK_MODEL;
   if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
   if (env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = env.GEMINI_IMAGE_MODEL;
+  if (env.GEMINI_VIDEO_MODEL) process.env.GEMINI_VIDEO_MODEL = env.GEMINI_VIDEO_MODEL;
 
   return {
     // `--config App/vite.config.ts` only selects the config file — Vite still
@@ -73,7 +74,7 @@ export default defineConfig(({ mode }) => {
       relianceTokenCoverage(path.join(relianceCacheDir, 'brands/reliance')),
       claudeApiProxy(),
       geminiImageProxy(),
-      higgsfieldVideoProxy(),
+      geminiVideoProxy(),
     ],
     define: {
       __ONEUI_BRANDS_CONFIG__: JSON.stringify(fullBrandsConfig),

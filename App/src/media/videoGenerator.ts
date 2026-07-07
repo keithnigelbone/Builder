@@ -13,7 +13,7 @@ export async function requestMotionVideo(plan: BuildPlan): Promise<{ videoUrl?: 
   }
 
   try {
-    const res = await fetch('/api/higgsfield-video', {
+    const res = await fetch('/api/gemini-video', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ prompt: assembleImagePrompt(plan), startImageDataUrl: plan.heroImage }),
