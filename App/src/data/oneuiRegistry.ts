@@ -8,9 +8,17 @@
  * ever recommends components that genuinely exist in the installed package —
  * nothing here is hand-invented.
  */
-import { ALL_COMPONENT_METAS, type ComponentMeta } from '@jds4/oneui-react/registry/metaRegistry';
+import { ALL_COMPONENT_METAS } from '@jds4/oneui-react/registry/metaRegistry';
 import { isComponentReleased } from '@jds4/oneui-react/registry/releasedComponents';
 import { STORYBOOK_COMPONENT_NAMES } from './storybookRegistry';
+
+// The package's ComponentMeta type is used internally by metaRegistry.d.ts
+// but never re-exported from any public subpath (checked
+// node_modules/@jds4/oneui-react/dist/registry/metaRegistry.d.ts — it
+// imports the type from an internal path without re-exporting it). Deriving
+// it from the one array the package does export gives the same structural
+// type without depending on a name the package doesn't actually expose.
+export type ComponentMeta = (typeof ALL_COMPONENT_METAS)[number];
 
 /** Every component this app is allowed to recommend or reference: released by
  *  the package AND covered by an actual Storybook story in this repo. */
@@ -28,5 +36,3 @@ export function getComponentMeta(name: string): ComponentMeta | undefined {
 export function getComponentsByCategory(category: ComponentMeta['category']): ComponentMeta[] {
   return AVAILABLE_COMPONENTS.filter((meta) => meta.category === category);
 }
-
-export type { ComponentMeta };

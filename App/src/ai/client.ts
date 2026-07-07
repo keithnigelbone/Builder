@@ -59,7 +59,7 @@ async function requestHeroImage(plan: BuildPlan): Promise<string | undefined> {
 
 export async function requestClassification(prompt: string): Promise<AIResult<ClassifyResult>> {
   const response = await postToClaude({ type: 'classify', prompt });
-  if (!response.ok) return fallbackClassify(prompt, response.error);
+  if (response.ok === false) return fallbackClassify(prompt, response.error);
 
   const raw = response.result as Partial<ClassifyResult> | null;
   const category = raw?.category && VALID_CATEGORY_IDS.has(raw.category) ? raw.category : undefined;
@@ -91,7 +91,7 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     refinement: input.refinement,
     availableComponents: [...AVAILABLE_COMPONENT_NAMES],
   });
-  if (!response.ok) return fallbackPlan(input, response.error);
+  if (response.ok === false) return fallbackPlan(input, response.error);
 
   const raw = response.result as Partial<BuildPlan> | null;
   if (!raw || typeof raw.headline !== 'string') {
