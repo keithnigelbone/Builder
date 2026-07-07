@@ -36,3 +36,14 @@ describe('PLAN_TOOL schema — app screens', () => {
     expect(props.screenNavItems.items.required).toEqual(['label', 'icon']);
   });
 });
+
+describe('PLAN_TOOL schema — slides', () => {
+  it('includes a slides array with a validated slideType enum', () => {
+    const props = PLAN_TOOL.input_schema.properties;
+
+    expect(props.slides.type).toBe('array');
+    expect(props.slides.items.properties.slideType.enum).toEqual(['cover', 'divider', 'content', 'split-photo', 'table']);
+    expect(props.slides.items.required).toEqual(['slideType', 'headline']);
+    expect(props.slides.items.properties.tableColumns.items.required).toEqual(['header', 'items']);
+  });
+});

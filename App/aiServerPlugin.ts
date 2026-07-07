@@ -164,6 +164,31 @@ export const PLAN_TOOL = {
           required: ['label', 'icon'],
         },
       },
+      slides: {
+        type: 'array',
+        description:
+          'Slides: the full deck. Look at the guided answers for a slide-count signal (e.g. a range like "3-5", "6-10", "10+") and author that many slide objects, picking one specific number within the indicated range (e.g. "3-5" → 4, "10+" → 10). Each slide picks its own slideType: "cover" for an opening title slide, "divider" for a section-break heading only, "content" for a standard headline+body slide, "split-photo" for headline+body beside the deck\'s shared photo, "table" for a structured comparison/principles table. Slides never author their own image — the single shared heroImage (imageSubject/imageAction/imageLocation/imageFraming) is reused by any content/split-photo slide that wants one.',
+        items: {
+          type: 'object',
+          properties: {
+            slideType: { type: 'string', enum: ['cover', 'divider', 'content', 'split-photo', 'table'] },
+            headline: { type: 'string' },
+            subheadline: { type: 'string', description: 'cover only.' },
+            body: { type: 'string', description: 'content/split-photo only.' },
+            kicker: { type: 'string', description: 'content/split-photo only, optional eyebrow label.' },
+            tableColumns: {
+              type: 'array',
+              description: 'table only.',
+              items: {
+                type: 'object',
+                properties: { header: { type: 'string' }, items: { type: 'array', items: { type: 'string' } } },
+                required: ['header', 'items'],
+              },
+            },
+          },
+          required: ['slideType', 'headline'],
+        },
+      },
       socialFormat: { type: 'string', enum: ['square', 'story', 'linkedin', 'carousel'] },
       badgeLabel: { type: 'string', description: 'Social: small badge/tag text, e.g. "New" or "Live".' },
       motionConcept: {

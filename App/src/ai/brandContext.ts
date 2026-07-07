@@ -34,4 +34,10 @@ Structure an app-screen build the same way: top bar, then an optional hero image
 2-5 content blocks mixing list-item/stat/image-card/action — whichever fit the screen's
 real purpose — then a bottom nav that reflects the actual app being built, not a
 generic Home/Search/Settings default.
+
+For a slides build, author the full deck as the slides array: read the guided answers
+for a slide-count signal (a range like "3-5", "6-10", "10+") and pick one specific
+number within it, then give each slide a slideType — cover to open, divider for
+section breaks, content for a standard point, split-photo when the deck's shared
+photo genuinely adds to a point, table for comparing several items side by side.
 `.trim();
