@@ -21,7 +21,19 @@ import { RELIANCE_REAL_CONTEXT } from './src/ai/brandContext';
  * prototype would need a real hosted equivalent of this endpoint.
  */
 
-const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-5';
+/**
+ * Model resolution is lazy (read per request, not at module import) because
+ * this module is imported by App/vite.config.ts *before* its defineConfig
+ * callback copies .env values onto process.env — a module-level constant
+ * would always see the pre-loadEnv environment and silently ignore
+ * ANTHROPIC_MODEL / ANTHROPIC_FALLBACK_MODEL set in .env.
+ */
+export function resolveModels(): { primary: string; fallback: string } {
+  return {
+    primary: process.env.ANTHROPIC_MODEL || 'claude-fable-5',
+    fallback: process.env.ANTHROPIC_FALLBACK_MODEL || 'claude-sonnet-5',
+  };
+}
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
 const RELIANCE_SYSTEM_PROMPT = `You are the reasoning layer behind "Reliance Builder", a tool that turns a short
@@ -226,7 +238,13 @@ export const PLAN_TOOL = {
   },
 };
 
-async function callAnthropic(apiKey: string, system: string, userContent: string, tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL) {
+async function callAnthropic(
+  apiKey: string,
+  model: string,
+  system: string,
+  userContent: string,
+  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL,
+) {
   const res = await fetch(ANTHROPIC_API_URL, {
     method: 'POST',
     headers: {
@@ -235,7 +253,7 @@ async function callAnthropic(apiKey: string, system: string, userContent: string
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
+      model,
       // 1024 was fine before the slides deck array existed; a "slides" plan
       // call authoring up to 10 slide objects plus reasoning and image
       // fields routinely needs more than that and was silently truncating
@@ -267,6 +285,27 @@ async function callAnthropic(apiKey: string, system: string, userContent: string
   const toolUse = data.content.find((block) => block.type === 'tool_use');
   if (!toolUse) throw new Error('Anthropic response had no tool_use block');
   return toolUse.input;
+}
+
+/**
+ * One retry on the fallback model covers every primary failure mode this
+ * proxy can detect — HTTP error, overload, max_tokens truncation, missing
+ * tool_use block. Both models failing propagates the error so the client
+ * falls back to fallbackPlan.ts's deterministic content.
+ */
+export async function callAnthropicWithFallback(
+  apiKey: string,
+  system: string,
+  userContent: string,
+  tool: typeof CLASSIFY_TOOL | typeof PLAN_TOOL,
+): Promise<{ input: unknown; model: string }> {
+  const { primary, fallback } = resolveModels();
+  try {
+    return { input: await callAnthropic(apiKey, primary, system, userContent, tool), model: primary };
+  } catch (primaryErr) {
+    if (fallback === primary) throw primaryErr;
+    return { input: await callAnthropic(apiKey, fallback, system, userContent, tool), model: fallback };
+  }
 }
 
 function readJsonBody(req: IncomingMessage): Promise<RequestBody> {
@@ -312,13 +351,13 @@ export function claudeApiProxy(): Plugin {
           const body = await readJsonBody(req);
 
           if (body.type === 'classify') {
-            const input = await callAnthropic(
+            const { input, model } = await callAnthropicWithFallback(
               apiKey,
               RELIANCE_SYSTEM_PROMPT,
               `User's request: "${body.prompt}"\n\nClassify it and propose any useful follow-up questions.`,
               CLASSIFY_TOOL,
             );
-            sendJson(res, 200, { result: input });
+            sendJson(res, 200, { result: input, model });
             return;
           }
 
@@ -334,8 +373,8 @@ export function claudeApiProxy(): Plugin {
             ].filter(Boolean);
 
             const planSystemPrompt = `${RELIANCE_SYSTEM_PROMPT}\n\n${RELIANCE_ART_DIRECTION}`;
-            const input = await callAnthropic(apiKey, planSystemPrompt, contextLines.join('\n'), PLAN_TOOL);
-            sendJson(res, 200, { result: input });
+            const { input, model } = await callAnthropicWithFallback(apiKey, planSystemPrompt, contextLines.join('\n'), PLAN_TOOL);
+            sendJson(res, 200, { result: input, model });
             return;
           }
 

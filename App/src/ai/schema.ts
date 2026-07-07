@@ -93,6 +93,8 @@ export interface AIResult<T> {
   source: 'claude' | 'fallback';
   /** Present when source is 'fallback' — shown honestly in Build details, never hidden. */
   fallbackReason?: string;
+  /** Which Claude model actually authored this stage (e.g. after a fallback-model retry). */
+  model?: string;
 }
 
 /**

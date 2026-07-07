@@ -8,7 +8,9 @@ import { RELIANCE_VISUAL_BASELINE, RELIANCE_VISUAL_BASELINE_AERIAL } from './art
 const VALID_CATEGORY_IDS = new Set(BUILD_CATEGORIES.map((c) => c.id));
 const AVAILABLE_COMPONENT_NAMES = new Set(AVAILABLE_COMPONENTS.map((c) => c.name));
 
-async function postToClaude(body: unknown): Promise<{ ok: true; result: unknown } | { ok: false; error: string }> {
+async function postToClaude(
+  body: unknown,
+): Promise<{ ok: true; result: unknown; model?: string } | { ok: false; error: string }> {
   try {
     const res = await fetch('/api/claude', {
       method: 'POST',
@@ -17,7 +19,7 @@ async function postToClaude(body: unknown): Promise<{ ok: true; result: unknown 
     });
     const json = await res.json();
     if (!res.ok) return { ok: false, error: json.error ?? `HTTP ${res.status}` };
-    return { ok: true, result: json.result };
+    return { ok: true, result: json.result, model: typeof json.model === 'string' ? json.model : undefined };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Network error reaching the local Claude proxy' };
   }
@@ -78,6 +80,7 @@ export async function requestClassification(prompt: string): Promise<AIResult<Cl
 
   return {
     source: 'claude',
+    model: response.model,
     data: {
       category,
       reasoning: raw?.reasoning || 'Classified by Claude.',
@@ -127,7 +130,7 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
   };
   data.heroImage = await requestHeroImage(data);
 
-  return { source: 'claude', data };
+  return { source: 'claude', model: response.model, data };
 }
 
 export async function requestMotionVideo(plan: BuildPlan): Promise<{ videoUrl?: string; error?: string }> {

@@ -49,6 +49,12 @@ always render something. To get real Claude-authored previews:
 1. Get an Anthropic API key: https://console.anthropic.com/
 2. Add `ANTHROPIC_API_KEY=sk-ant-...` to the repo-root `.env` (create the file if it
    doesn't exist yet — it's already excluded via `.gitignore`).
+
+   Optional model overrides (both read from the repo-root `.env`):
+
+   - `ANTHROPIC_MODEL` — primary orchestration model. Default: `claude-fable-5`.
+   - `ANTHROPIC_FALLBACK_MODEL` — retried once automatically when the primary model
+     fails for any reason. Default: `claude-sonnet-5`.
 3. Restart `npm run app:dev`
 
 The key is **only** read by a local dev-server proxy (`App/aiServerPlugin.ts`) — it is never

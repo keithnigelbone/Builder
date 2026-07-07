@@ -22,6 +22,7 @@ export function App() {
       source: classification.source,
       reasoning: classification.data.reasoning,
       fallbackReason: classification.fallbackReason,
+      model: classification.model,
     };
     // A quick-action click already tells us the category — don't let the
     // model second-guess it, but its follow-up questions are still useful.
@@ -59,7 +60,7 @@ export function App() {
           refinements,
           plan: result.data,
           classifyMeta,
-          planMeta: { source: result.source, reasoning: result.data.reasoning, fallbackReason: result.fallbackReason },
+          planMeta: { source: result.source, reasoning: result.data.reasoning, fallbackReason: result.fallbackReason, model: result.model },
         },
       };
     });

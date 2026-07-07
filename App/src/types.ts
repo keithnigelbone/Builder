@@ -30,6 +30,8 @@ export interface AIMeta {
   source: 'claude' | 'fallback';
   reasoning: string;
   fallbackReason?: string;
+  /** Which Claude model authored this stage, when source is 'claude'. */
+  model?: string;
 }
 
 export interface BuildRequest {

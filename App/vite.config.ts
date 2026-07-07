@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, repoRoot, '');
   if (env.ANTHROPIC_API_KEY) process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
   if (env.ANTHROPIC_MODEL) process.env.ANTHROPIC_MODEL = env.ANTHROPIC_MODEL;
+  if (env.ANTHROPIC_FALLBACK_MODEL) process.env.ANTHROPIC_FALLBACK_MODEL = env.ANTHROPIC_FALLBACK_MODEL;
   if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
   if (env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = env.GEMINI_IMAGE_MODEL;
 
