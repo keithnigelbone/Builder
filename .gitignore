@@ -11,3 +11,9 @@ App/.env
 App/.env.local
 keys.json.rtf
 keys.env.rtf
+
+# Local agent/session scratch — never commit
+.superpowers/
+.playwright-cli/
+.agents/
+.claude-flow/
