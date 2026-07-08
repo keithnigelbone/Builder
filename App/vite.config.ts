@@ -44,12 +44,19 @@ export default defineConfig(({ mode }) => {
   // process.env so aiServerPlugin.ts (which runs in this Node process, never
   // in the browser) can read it.
   const env = loadEnv(mode, repoRoot, '');
-  if (env.ANTHROPIC_API_KEY) process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
-  if (env.ANTHROPIC_MODEL) process.env.ANTHROPIC_MODEL = env.ANTHROPIC_MODEL;
-  if (env.ANTHROPIC_FALLBACK_MODEL) process.env.ANTHROPIC_FALLBACK_MODEL = env.ANTHROPIC_FALLBACK_MODEL;
-  if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
-  if (env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = env.GEMINI_IMAGE_MODEL;
-  if (env.GEMINI_VIDEO_MODEL) process.env.GEMINI_VIDEO_MODEL = env.GEMINI_VIDEO_MODEL;
+  // E2E runs set RELIANCE_BUILDER_DISABLE_AI=1 to keep the suite hermetic:
+  // loadEnv reads the repo-root .env from disk regardless of the child
+  // process env, so withholding keys from the child env alone would not
+  // stop them reaching the proxies — this flag does.
+  const disableAI = env.RELIANCE_BUILDER_DISABLE_AI === '1' || process.env.RELIANCE_BUILDER_DISABLE_AI === '1';
+  if (!disableAI) {
+    if (env.ANTHROPIC_API_KEY) process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY;
+    if (env.ANTHROPIC_MODEL) process.env.ANTHROPIC_MODEL = env.ANTHROPIC_MODEL;
+    if (env.ANTHROPIC_FALLBACK_MODEL) process.env.ANTHROPIC_FALLBACK_MODEL = env.ANTHROPIC_FALLBACK_MODEL;
+    if (env.GEMINI_API_KEY) process.env.GEMINI_API_KEY = env.GEMINI_API_KEY;
+    if (env.GEMINI_IMAGE_MODEL) process.env.GEMINI_IMAGE_MODEL = env.GEMINI_IMAGE_MODEL;
+    if (env.GEMINI_VIDEO_MODEL) process.env.GEMINI_VIDEO_MODEL = env.GEMINI_VIDEO_MODEL;
+  }
 
   return {
     // `--config App/vite.config.ts` only selects the config file — Vite still

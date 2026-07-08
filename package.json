@@ -10,6 +10,7 @@
     "app:build": "vite build --config App/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@jds4/oneui-vite-plugin": "file:/Users/keithbone/Downloads/jds4-packages-0.1.0-alpha.10/jds4-oneui-vite-plugin-0.1.0-alpha.10.tgz",
+    "@playwright/test": "^1.61.1",
     "@storybook/addon-essentials": "^8.6.0",
     "@storybook/react-vite": "^8.6.0",
     "@testing-library/jest-dom": "^6.9.1",
