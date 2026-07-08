@@ -1,146 +1,21 @@
-import { Container, Text, Button, Image, Surface } from '@jds4/oneui-react';
 import type { BuildPlan } from '../../ai/schema';
-import { describeHeroImage } from '../../ai/schema';
-import { BrandMark } from '../BrandMark';
+import { resolvePatternId } from '../../data/patternRegistry';
+import { ProductStory } from './website/ProductStory';
+import { CampaignHero } from './website/CampaignHero';
 
+/**
+ * Website preview = a switch over the curated pattern registry. The pattern
+ * id is always resolved through the registry (invalid/missing → the
+ * category default), so Claude can steer the layout but never invent one.
+ */
 export function WebsitePreview({ plan }: { plan: BuildPlan }) {
-  const navItems = plan.navItems?.length ? plan.navItems : ['Product', 'Pricing'];
-  const sections = plan.sections ?? [];
-
-  return (
-    <Container variant="full-bleed" layout="flex" direction="column" gap="0" width="full" style={{ height: '100%' }}>
-      <Container
-        variant="full-bleed"
-        layout="flex"
-        align="center"
-        justify="space-between"
-        width="full"
-        padding="4"
-        style={{ borderBottom: '1px solid var(--Neutral-Stroke-Low)' }}
-      >
-        <BrandMark size={22} />
-        <Container variant="full-bleed" layout="flex" align="center" gap="5" width="fit">
-          {navItems.map((item) => (
-            <Text key={item} variant="label" size="M" appearance="neutral">
-              {item}
-            </Text>
-          ))}
-          <Button attention="high" size="m">
-            {plan.ctaLabel || 'Get started'}
-          </Button>
-        </Container>
-      </Container>
-
-      <Container variant="full-bleed" layout="flex" direction="column" align="center" gap="4" padding="10">
-        {plan.kicker && (
-          <Text variant="label" size="S" appearance="primary">
-            {plan.kicker}
-          </Text>
-        )}
-        <Text variant="display" size="L" textAlign="center" style={{ maxWidth: 760 }}>
-          {plan.headline}
-        </Text>
-        {plan.subheadline && (
-          <Text variant="body" size="L" appearance="neutral" textAlign="center" style={{ maxWidth: 620 }}>
-            {plan.subheadline}
-          </Text>
-        )}
-        <Button attention="high" size="l">
-          {plan.ctaLabel || 'Primary action'}
-        </Button>
-      </Container>
-
-      {plan.heroImage && (
-        <Container variant="full-bleed" width="full" padding="10" style={{ paddingTop: 0 }}>
-          <Image src={plan.heroImage} alt={describeHeroImage(plan)} aspectRatio="16:9" width="full" />
-        </Container>
-      )}
-
-      {sections.length > 0 && (
-        <Container variant="full-bleed" layout="grid" columns={Math.min(sections.length, 3)} gap="6" width="full" padding="10">
-          {sections.map((section) => (
-            <Container key={section.title} variant="full-bleed" layout="flex" direction="column" gap="2" width="full">
-              <Text variant="title" size="S">
-                {section.title}
-              </Text>
-              <Text variant="body" size="M" appearance="neutral">
-                {section.body}
-              </Text>
-            </Container>
-          ))}
-        </Container>
-      )}
-
-      {plan.quote && (
-        <Container variant="full-bleed" width="full" padding="10" style={{ paddingTop: 0 }}>
-          <Surface mode="moderate" style={{ padding: 'var(--Spacing-8)', borderRadius: 'var(--Shape-3)' }}>
-            <Text variant="title" size="L">
-              "{plan.quote.text}"
-            </Text>
-            <Text variant="label" size="M" weight="high">
-              {plan.quote.name}
-            </Text>
-            <Text variant="body" size="S" appearance="neutral">
-              {plan.quote.title}
-            </Text>
-          </Surface>
-        </Container>
-      )}
-
-      {plan.newsItems && plan.newsItems.length > 0 && (
-        <Container variant="full-bleed" layout="grid" columns={Math.min(plan.newsItems.length, 3)} gap="6" width="full" padding="10">
-          {plan.newsItems.map((item) => (
-            <Surface key={item.title} mode="subtle" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
-              <div
-                style={{
-                  aspectRatio: '16 / 9',
-                  background: 'var(--Neutral-Subtle)',
-                  borderRadius: 'var(--Shape-2)',
-                  marginBottom: 'var(--Spacing-3)',
-                }}
-              />
-              <Text variant="label" size="S" appearance="neutral">
-                {item.date}
-              </Text>
-              <Text variant="title" size="S">
-                {item.title}
-              </Text>
-            </Surface>
-          ))}
-        </Container>
-      )}
-
-      {plan.contactHeadline && (
-        <Container variant="full-bleed" width="full">
-          <Surface mode="moderate" style={{ padding: 'var(--Spacing-10)', textAlign: 'center' }}>
-            <Text variant="display" size="M">
-              {plan.contactHeadline}
-            </Text>
-          </Surface>
-        </Container>
-      )}
-
-      <Container
-        variant="full-bleed"
-        layout="flex"
-        direction="column"
-        gap="3"
-        width="full"
-        padding="10"
-        style={{ borderTop: '1px solid var(--Neutral-Stroke-Low)' }}
-      >
-        <BrandMark size={20} />
-        <Container variant="full-bleed" layout="flex" gap="4" wrap>
-          {navItems.map((item) => (
-            <Text key={item} variant="label" size="S" appearance="neutral">
-              {item}
-            </Text>
-          ))}
-        </Container>
-        <Text variant="label" size="XS" appearance="neutral">
-          © Reliance
-        </Text>
-      </Container>
-    </Container>
-  );
+  switch (resolvePatternId('website', plan)) {
+    case 'campaign-hero':
+      return <CampaignHero plan={plan} />;
+    // 'editorial' and 'service-hub' land in the next task; until then the
+    // registry default keeps them on the strongest existing layout.
+    case 'product-story':
+    default:
+      return <ProductStory plan={plan} />;
+  }
 }
