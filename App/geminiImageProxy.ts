@@ -1,35 +1,19 @@
 import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { DEFAULT_IMAGE_MODEL, generateImage } from './server/geminiImageCore';
 
 /**
- * Dev-only local proxy to Google's Gemini image API ("Nano Banana").
+ * Dev-only local proxy to Google's Gemini image API ("Nano"). The actual
+ * request/parse logic lives in App/server/geminiImageCore.ts, shared with
+ * the hosted Vercel function (api/gemini-image.ts) — this file only adapts
+ * it to Vite middleware. If no key is configured, or the call fails for any
+ * reason, it returns a JSON error the client already treats as "no image".
  *
- * The browser NEVER sees GEMINI_API_KEY — it lives only in this Node
- * process (read from the repo-root .env, copied onto process.env by
- * App/vite.config.ts, same mechanism as aiServerPlugin.ts's Claude proxy).
- * The client posts { prompt: string } to /api/gemini-image; this middleware
- * forwards a single generateContent call requesting image output and
- * returns a data URL. If no key/model is configured, or the call fails for
- * any reason, it returns a JSON error the client already treats as "no
- * image" — App/src/ai/client.ts never throws on this, the preview just
- * renders without one.
- *
- * This only runs under `vite dev` (App/vite.config.ts), same constraint as
- * aiServerPlugin.ts's Claude proxy.
+ * This only runs under `vite dev` (App/vite.config.ts).
  */
-
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 interface ImageRequestBody {
   prompt: string;
-}
-
-interface GeminiGenerateContentResponse {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ inlineData?: { mimeType: string; data: string } }>;
-    };
-  }>;
 }
 
 function readJsonBody(req: IncomingMessage): Promise<ImageRequestBody> {
@@ -64,13 +48,11 @@ export function geminiImageProxy(): Plugin {
         }
 
         const apiKey = process.env.GEMINI_API_KEY;
-        const model = process.env.GEMINI_IMAGE_MODEL;
-        if (!apiKey || !model) {
-          sendJson(res, 503, {
-            error: 'GEMINI_API_KEY or GEMINI_IMAGE_MODEL is not set. Add them to the repo-root .env.',
-          });
+        if (!apiKey) {
+          sendJson(res, 503, { error: 'GEMINI_API_KEY is not set. Add it to the repo-root .env.' });
           return;
         }
+        const model = process.env.GEMINI_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
 
         try {
           const body = await readJsonBody(req);
@@ -79,32 +61,9 @@ export function geminiImageProxy(): Plugin {
             return;
           }
 
-          const apiRes = await fetch(`${GEMINI_API_BASE}/${model}:generateContent`, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              'x-goog-api-key': apiKey,
-            },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: body.prompt }] }],
-              generationConfig: { responseModalities: ['IMAGE'] },
-            }),
-          });
-
-          if (!apiRes.ok) {
-            const text = await apiRes.text().catch(() => '');
-            sendJson(res, 502, { error: `Gemini API error ${apiRes.status}: ${text.slice(0, 300)}` });
-            return;
-          }
-
-          const data = (await apiRes.json()) as GeminiGenerateContentResponse;
-          const part = data.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
-          if (!part?.inlineData) {
-            sendJson(res, 502, { error: 'Gemini response had no image data' });
-            return;
-          }
-
-          sendJson(res, 200, { result: { dataUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` } });
+          const result = await generateImage(apiKey, model, body.prompt);
+          if (result.ok) sendJson(res, 200, { result: { dataUrl: result.dataUrl } });
+          else sendJson(res, result.status, { error: result.error });
         } catch (err) {
           sendJson(res, 502, { error: err instanceof Error ? err.message : 'Unknown error calling Gemini' });
         }
