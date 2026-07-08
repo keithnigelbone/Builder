@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { DEFAULT_VIDEO_MODEL, generateVideo } from '../App/server/geminiVideoCore';
-import { rejectBadRequest } from './_guards';
+// Explicit .js specifiers — same runtime-ESM constraint as api/gemini-image.ts.
+import { DEFAULT_VIDEO_MODEL, generateVideo } from '../App/server/geminiVideoCore.js';
+import { rejectBadRequest } from './_guards.js';
 
 /**
  * Hosted twin of the dev-only Vite proxy (App/geminiVideoProxy.ts) — same

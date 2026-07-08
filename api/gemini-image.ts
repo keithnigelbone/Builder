@@ -1,6 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { DEFAULT_IMAGE_MODEL, generateImage } from '../App/server/geminiImageCore';
-import { rejectBadRequest } from './_guards';
+// Explicit .js specifiers: the Vercel Node builder emits ESM, and Node's ESM
+// resolver refuses extensionless relative imports at runtime
+// (ERR_MODULE_NOT_FOUND observed live on the first deploy).
+import { DEFAULT_IMAGE_MODEL, generateImage } from '../App/server/geminiImageCore.js';
+import { rejectBadRequest } from './_guards.js';
 
 /**
  * Hosted twin of the dev-only Vite proxy (App/geminiImageProxy.ts) — same
