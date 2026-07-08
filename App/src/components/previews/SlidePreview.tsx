@@ -177,6 +177,65 @@ function TableSlide({ slide }: { slide: SlideContent }) {
   );
 }
 
+function StatSlide({ slide }: { slide: SlideContent }) {
+  return (
+    <Container
+      variant="full-bleed"
+      layout="flex"
+      direction="column"
+      justify="space-between"
+      width="full"
+      padding="10"
+      style={{ height: '100%', boxSizing: 'border-box' }}
+    >
+      <Container variant="full-bleed" layout="flex" align="center" justify="space-between" width="full">
+        <Badge size="m" appearance="primary">
+          {slide.headline}
+        </Badge>
+        <BrandMark size={28} />
+      </Container>
+      <Container variant="full-bleed" layout="flex" direction="column" gap="2" width="full">
+        <Text variant="display" size="L" appearance="primary">
+          {slide.statValue}
+        </Text>
+        {slide.statLabel && (
+          <Text variant="title" size="S" appearance="neutral">
+            {slide.statLabel}
+          </Text>
+        )}
+      </Container>
+    </Container>
+  );
+}
+
+function ClosingSlide({ slide }: { slide: SlideContent }) {
+  return (
+    <Surface mode="bold" appearance="primary" style={{ height: '100%', width: '100%', boxSizing: 'border-box' }}>
+      <Container
+        variant="full-bleed"
+        layout="flex"
+        direction="column"
+        align="center"
+        justify="center"
+        gap="3"
+        width="full"
+        padding="10"
+        style={{ height: '100%', boxSizing: 'border-box' }}
+      >
+        <Text variant="display" size="L" textAlign="center" style={{ color: 'var(--Text-OnBold-High, #fff)' }}>
+          {slide.headline}
+        </Text>
+        {slide.subheadline && (
+          <Text variant="title" size="S" textAlign="center" style={{ color: 'var(--Text-OnBold-Medium, #fff)' }}>
+            {slide.subheadline}
+          </Text>
+        )}
+        <BrandMark size={32} onBold />
+      </Container>
+    </Surface>
+  );
+}
+
 export function SlidePreview({ slide, heroImage }: { slide: SlideContent; heroImage?: string }) {
   switch (slide.slideType) {
     case 'cover':
@@ -187,6 +246,10 @@ export function SlidePreview({ slide, heroImage }: { slide: SlideContent; heroIm
       return <SplitPhotoSlide slide={slide} heroImage={heroImage} />;
     case 'table':
       return <TableSlide slide={slide} />;
+    case 'stat':
+      return <StatSlide slide={slide} />;
+    case 'closing':
+      return <ClosingSlide slide={slide} />;
     case 'content':
     default:
       return <ContentSlide slide={slide} heroImage={heroImage} />;

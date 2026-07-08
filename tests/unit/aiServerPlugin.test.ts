@@ -42,7 +42,7 @@ describe('PLAN_TOOL schema — slides', () => {
     const props = PLAN_TOOL.input_schema.properties;
 
     expect(props.slides.type).toBe('array');
-    expect(props.slides.items.properties.slideType.enum).toEqual(['cover', 'divider', 'content', 'split-photo', 'table']);
+    expect(props.slides.items.properties.slideType.enum).toEqual(['cover', 'divider', 'content', 'split-photo', 'table', 'stat', 'closing']);
     expect(props.slides.items.required).toEqual(['slideType', 'headline']);
     expect(props.slides.items.properties.tableColumns.items.required).toEqual(['header', 'items']);
   });

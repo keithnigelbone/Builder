@@ -197,13 +197,13 @@ export const PLAN_TOOL = {
       slides: {
         type: 'array',
         description:
-          'Slides: the full deck. Look at the guided answers for a slide-count signal (e.g. a range like "3-5", "6-10", "10+") and author that many slide objects, picking one specific number within the indicated range (e.g. "3-5" → 4, "10+" → 10). Each slide picks its own slideType: "cover" for an opening title slide, "divider" for a section-break heading only, "content" for a standard headline+body slide, "split-photo" for headline+body beside the deck\'s shared photo, "table" for a structured comparison/principles table. Slides never author their own image — the single shared heroImage (imageSubject/imageAction/imageLocation/imageFraming) is reused by any content/split-photo slide that wants one.',
+          'Slides: the full deck. Look at the guided answers for a slide-count signal (e.g. a range like "3-5", "6-10", "10+") and author that many slide objects, picking one specific number within the indicated range (e.g. "3-5" → 4, "10+" → 10). Each slide picks its own slideType: "cover" for an opening title slide, "divider" for a section-break heading only, "content" for a standard headline+body slide, "split-photo" for headline+body beside the deck\'s shared photo, "table" for a structured comparison/principles table, "stat" for one hero number with a caption, "closing" for the final thank-you/next-steps slide. Slides never author their own image — the single shared heroImage (imageSubject/imageAction/imageLocation/imageFraming) is reused by any content/split-photo slide that wants one.',
         items: {
           type: 'object',
           properties: {
-            slideType: { type: 'string', enum: ['cover', 'divider', 'content', 'split-photo', 'table'] },
+            slideType: { type: 'string', enum: ['cover', 'divider', 'content', 'split-photo', 'table', 'stat', 'closing'] },
             headline: { type: 'string' },
-            subheadline: { type: 'string', description: 'cover only.' },
+            subheadline: { type: 'string', description: 'cover/closing only.' },
             body: { type: 'string', description: 'content/split-photo only.' },
             kicker: { type: 'string', description: 'content/split-photo only, optional eyebrow label.' },
             tableColumns: {
@@ -215,6 +215,8 @@ export const PLAN_TOOL = {
                 required: ['header', 'items'],
               },
             },
+            statValue: { type: 'string', description: 'stat only: the single large number/value the slide is about, e.g. "42%" or "₹2,400 Cr".' },
+            statLabel: { type: 'string', description: 'stat only: one-line caption under the value.' },
           },
           required: ['slideType', 'headline'],
         },

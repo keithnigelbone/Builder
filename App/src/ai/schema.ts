@@ -28,7 +28,7 @@ export type SlideType = 'cover' | 'divider' | 'content' | 'split-photo' | 'table
 export interface SlideContent {
   slideType: SlideType;
   headline: string;
-  /** cover only. */
+  /** cover and closing only. */
   subheadline?: string;
   /** content/split-photo only. */
   body?: string;
