@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Container, SelectableButton, Surface } from '@jds4/oneui-react';
-import { DIMENSIONS, type DimensionVariant } from '../data/previewDimensions';
+import { DIMENSIONS } from '../data/previewDimensions';
 import { computeFitFrame } from './previewFit';
 import type { BuildCategoryId } from '../types';
 

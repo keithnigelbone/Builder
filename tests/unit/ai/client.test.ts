@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { requestClassification, requestPlan } from '../../../App/src/ai/client';
-import type { BuildPlan } from '../../../App/src/ai/schema';
 
 function jsonResponse(status: number, body: unknown): Response {
   return {
