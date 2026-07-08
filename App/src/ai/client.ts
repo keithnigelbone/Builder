@@ -3,7 +3,7 @@ import { BUILD_CATEGORIES } from '../data/buildCategories';
 import { AVAILABLE_COMPONENTS } from '../data/oneuiRegistry';
 import { fallbackClassify, fallbackPlan } from './fallbackPlan';
 import type { AIResult, BuildPlan, ClassifyResult, FollowUpQuestion } from './schema';
-import { requestHeroImage } from '../media/imageGenerator';
+import { resolvePatternId } from '../data/patternRegistry';
 
 const VALID_CATEGORY_IDS = new Set(BUILD_CATEGORIES.map((c) => c.id));
 const AVAILABLE_COMPONENT_NAMES = new Set(AVAILABLE_COMPONENTS.map((c) => c.name));
@@ -65,7 +65,7 @@ export async function requestClassification(prompt: string): Promise<AIResult<Cl
   };
 }
 
-interface PlanInput {
+export interface PlanInput {
   category: BuildCategoryId;
   prompt: string;
   answers: GuidedAnswers;
@@ -101,10 +101,27 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     contentBlocks: asArray(raw.contentBlocks),
     screenNavItems: asArray(raw.screenNavItems),
     slides: asArray(raw.slides),
+    carouselFrames: asArray(raw.carouselFrames),
     recommendedComponentNames,
     reasoning: raw.reasoning || 'Authored by Claude.',
   };
-  data.heroImage = await requestHeroImage(data);
+  data.patternId = resolvePatternId(input.category, {
+    patternId: typeof raw.patternId === 'string' ? raw.patternId : undefined,
+    socialFormat: data.socialFormat,
+    motionConcept: data.motionConcept,
+  });
 
   return { source: 'claude', model: response.model, data };
+}
+
+export async function requestCritique(
+  category: BuildCategoryId,
+  prompt: string,
+  draftPlan: BuildPlan,
+): Promise<{ ok: true; revision: Partial<BuildPlan> & { qualityNotes?: string }; model?: string } | { ok: false; error: string }> {
+  const response = await postToClaude({ type: 'critique', category, prompt, draftPlan });
+  if (response.ok === false) return { ok: false, error: response.error };
+  const revision = response.result;
+  if (!revision || typeof revision !== 'object') return { ok: false, error: 'Claude returned an empty critique.' };
+  return { ok: true, revision: revision as Partial<BuildPlan> & { qualityNotes?: string }, model: response.model };
 }

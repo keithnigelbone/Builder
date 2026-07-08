@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BUILD_CATEGORIES, getBuildCategory } from './data/buildCategories';
-import { requestClassification, requestPlan } from './ai/client';
+import { requestClassification } from './ai/client';
+import { generateBuild } from './ai/orchestrator';
 import { StartScreen } from './components/StartScreen';
 import { GuidedQuestionScreen } from './components/GuidedQuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
@@ -45,7 +46,7 @@ export function App() {
     refinement?: string,
   ) => {
     setBusyLabel(refinement ? 'Updating your preview…' : 'Designing your preview…');
-    const result = await requestPlan({ category: category.id, prompt: freeformPrompt, answers, refinement });
+    const result = await generateBuild({ category: category.id, prompt: freeformPrompt, answers, refinement }, setBusyLabel);
     setBusyLabel(null);
 
     setStep((prev) => {
