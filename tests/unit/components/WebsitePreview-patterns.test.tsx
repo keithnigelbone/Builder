@@ -33,4 +33,11 @@ describe('WebsitePreview pattern switch', () => {
     // Both CTAs exist but only the plan's own label is the primary action.
     expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(2);
   });
+
+  it('keeps header and hero CTAs distinct when no ctaLabel is authored', () => {
+    render(<WebsitePreview plan={{ ...basePlan, ctaLabel: undefined, patternId: 'campaign-hero' }} />);
+
+    expect(screen.getByText('Get started')).toBeInTheDocument();
+    expect(screen.getByText('Explore now')).toBeInTheDocument();
+  });
 });

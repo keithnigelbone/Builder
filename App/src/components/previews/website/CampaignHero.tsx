@@ -45,7 +45,7 @@ export function CampaignHero({ plan }: { plan: BuildPlan }) {
         )}
         <Container variant="full-bleed" layout="flex" gap="3" width="fit">
           <Button attention="high" size="l">
-            {plan.ctaLabel || 'Get started'}
+            {plan.ctaLabel || 'Explore now'}
           </Button>
           <Button attention="low" size="l">
             Learn more
