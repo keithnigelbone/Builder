@@ -61,4 +61,18 @@ describe('rejectBadRequest', () => {
     expect(rejectBadRequest(makeReq({ body: { prompt: 'x'.repeat(MAX_PROMPT_LENGTH + 1) } }), res)).toBe(true);
     expect(recorded.status).toBe(400);
   });
+
+  it('rejects a malformed JSON body with 400 instead of throwing', () => {
+    const { res, recorded } = makeRes();
+    const req = {
+      method: 'POST',
+      headers: { host: 'reliance-builder.vercel.app' },
+      get body(): unknown {
+        throw new Error('Invalid JSON');
+      },
+    } as unknown as VercelRequest;
+
+    expect(rejectBadRequest(req, res)).toBe(true);
+    expect(recorded.status).toBe(400);
+  });
 });

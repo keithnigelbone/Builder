@@ -28,7 +28,15 @@ export function rejectBadRequest(req: VercelRequest, res: VercelResponse): boole
     }
   }
 
-  const prompt = (req.body as { prompt?: unknown } | undefined)?.prompt;
+  let prompt: unknown;
+  try {
+    prompt = (req.body as { prompt?: unknown } | undefined)?.prompt;
+  } catch {
+    // Vercel's req.body getter throws on malformed JSON — reject cleanly
+    // instead of surfacing a function invocation error.
+    res.status(400).json({ error: 'Invalid JSON body' });
+    return true;
+  }
   if (typeof prompt !== 'string' || prompt.length === 0) {
     res.status(400).json({ error: 'Missing prompt' });
     return true;
