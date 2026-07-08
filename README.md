@@ -55,16 +55,23 @@ always render something. To get real Claude-authored previews:
    - `ANTHROPIC_MODEL` — primary orchestration model. Default: `claude-fable-5`.
    - `ANTHROPIC_FALLBACK_MODEL` — retried once automatically when the primary model
      fails for any reason. Default: `claude-sonnet-5`.
-   - `GEMINI_IMAGE_MODEL` — Gemini model used for image generation via the
-     local `/api/gemini-image` proxy. Default: `gemini-2.0-flash-001`.
-   - `GEMINI_VIDEO_MODEL` — Veo model used for motion video generation via the
-     local `/api/gemini-video` proxy. Default: `veo-3.0-generate-001`.
+   - `GEMINI_IMAGE_MODEL` — Nano image model used by `/api/gemini-image`.
+     Default: `gemini-2.5-flash-image`.
+   - `GEMINI_VIDEO_MODEL` — Veo model used by `/api/gemini-video`.
+     Default: `veo-2.0-generate-001` (Veo 2).
 3. Restart `npm run app:dev`
 
-The key is **only** read by a local dev-server proxy (`App/aiServerPlugin.ts`) — it is never
-sent to the browser or included in the client bundle. This proxy only exists under
-`vite dev`; a real deployment of this prototype would need an equivalent hosted endpoint
-(e.g. a serverless function) — out of scope for this local prototype.
+Keys are read server-side only — never sent to the browser or bundled. Locally
+that means the Vite dev-server proxies (`App/aiServerPlugin.ts`,
+`App/geminiImageProxy.ts`, `App/geminiVideoProxy.ts`). On the hosted Vercel
+deployment, `api/gemini-image.ts` and `api/gemini-video.ts` serve the same
+`/api/...` paths as zero-dependency serverless functions sharing the same cores
+(`App/server/`): Nano images and Veo 2 motion work on the hosted site (fallback
+builds author their image prompts from the curated, art-direction-enforced
+scene library in `App/src/data/sceneTemplates.ts`). Claude is local-only.
+Hosted guards: POST-only, same-origin, 2000-char prompt cap — the Google
+account's spending cap is the cost ceiling. Hosted env vars are set via
+`vercel env add` (`GEMINI_API_KEY` required; model vars optional).
 
 ## How it works
 
