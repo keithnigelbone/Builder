@@ -1,6 +1,7 @@
 import type { BuildCategoryId, GuidedAnswers } from '../types';
 import { BUILD_CATEGORIES, getBuildCategory } from '../data/buildCategories';
 import { recommendComponents } from '../data/componentRecommendations';
+import { pickSceneTemplate, type SceneCategory } from '../data/sceneTemplates';
 import type { AIResult, BuildPlan, ClassifyResult } from './schema';
 
 /**
@@ -65,9 +66,14 @@ const PATTERN_BY_CATEGORY: Record<BuildCategoryId, string> = {
 
 export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPlan> {
   const components = recommendComponents(input.category, input.answers);
+  // Hosted builds have no Claude to author image prompts — a curated,
+  // art-direction-compliant scene fills that role (slides excluded by
+  // product decision). Stable per prompt so refinements don't churn images.
+  const scene = input.category === 'slides' ? undefined : pickSceneTemplate(input.category as SceneCategory, input.prompt || input.category);
   const base: BuildPlan = {
     headline: HEADLINE_BY_CATEGORY[input.category],
     patternId: PATTERN_BY_CATEGORY[input.category],
+    ...scene,
     subheadline: 'Supporting copy goes here.',
     body: 'Supporting detail goes here.',
     kicker: 'Section',
@@ -118,7 +124,8 @@ export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPl
     motionDescription: 'A steady, confident loading state.',
     recommendedComponentNames: components.map((c) => c.meta.name),
     reasoning:
-      'No live reasoning available for this request — used a generic on-brand layout for this category instead of AI-authored content.',
+      'No live reasoning available for this request — used a generic on-brand layout for this category instead of AI-authored content.' +
+      (scene ? ' Imagery uses a curated art-directed scene.' : ''),
   };
   return { data: base, source: 'fallback', fallbackReason: reason };
 }
