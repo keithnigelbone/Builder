@@ -58,8 +58,9 @@ always render something. To get real Claude-authored previews:
    - `GEMINI_IMAGE_MODEL` — Nano image model used by `/api/gemini-image`.
      Default: `gemini-2.5-flash-image`.
    - `GEMINI_VIDEO_MODEL` — Veo model used by `/api/gemini-video`.
-     Default: `veo-3.0-generate-001` (Veo 2 was retired from the Gemini API —
-     `veo-2.0-generate-001` now 404s).
+     Default: `veo-3.1-fast-generate-preview` (Veo 2 and Veo 3.0 are retired
+     from the Gemini API; the key's ListModels serves only the 3.1 previews —
+     set `veo-3.1-generate-preview` for the highest-quality tier).
 3. Restart `npm run app:dev`
 
 Keys are read server-side only — never sent to the browser or bundled. Locally

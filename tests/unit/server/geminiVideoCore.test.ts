@@ -12,8 +12,8 @@ afterEach(() => {
 });
 
 describe('DEFAULT_VIDEO_MODEL', () => {
-  it('is the GA Veo model this key serves (Veo 2 was retired from the Gemini API)', () => {
-    expect(DEFAULT_VIDEO_MODEL).toBe('veo-3.0-generate-001');
+  it('is the fast Veo tier the key actually serves (Veo 2/3.0 are retired from the Gemini API)', () => {
+    expect(DEFAULT_VIDEO_MODEL).toBe('veo-3.1-fast-generate-preview');
   });
 });
 
