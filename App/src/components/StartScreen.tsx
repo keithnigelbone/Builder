@@ -31,7 +31,7 @@ export function StartScreen({ prompt, onPromptChange, onSubmitPrompt, onSelectCa
         <Container variant="full-bleed" layout="flex" direction="column" align="center" gap="3">
           <BrandMark size={36} />
           <Text variant="display" size="M" textAlign="center">
-            Reliance Builder
+            Reliance
           </Text>
         </Container>
 

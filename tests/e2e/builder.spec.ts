@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
 test('guided flow renders a polished preview with details collapsed', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByText('Reliance Builder')).toBeVisible();
+  await expect(page.getByText('Reliance', { exact: true })).toBeVisible();
 
   await page.getByPlaceholder('What would you like to build today?').fill('A campaign page for rooftop solar');
   await page.getByRole('button', { name: 'Build' }).click();
