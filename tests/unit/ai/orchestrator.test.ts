@@ -14,6 +14,12 @@ const draft: BuildPlan = {
   headline: 'Draft headline',
   patternId: 'campaign-hero',
   navItems: ['One', 'Two'],
+  sections: [{ title: 'Section 1', body: 'Body text' }],
+  newsItems: [{ title: 'News', date: '2026-01-01' }],
+  contentBlocks: [{ type: 'action', label: 'Go' }],
+  screenNavItems: [{ label: 'Home', icon: 'home' }],
+  slides: [{ slideType: 'content', headline: 'Headline' }],
+  carouselFrames: [{ headline: 'Frame' }],
   recommendedComponentNames: ['Button'],
   reasoning: 'draft',
 };
@@ -35,18 +41,39 @@ describe('mergeCritique', () => {
       patternId: 'editorial',
       recommendedComponentNames: ['Modal'],
       dimensionVariant: 'mobile',
+      socialFormat: 'story',
+      motionConcept: 'transition',
+      reasoning: 'hijacked',
       qualityNotes: 'x',
     } as never);
 
     expect(merged.patternId).toBe('campaign-hero');
     expect(merged.recommendedComponentNames).toEqual(['Button']);
     expect(merged.dimensionVariant).toBeUndefined();
+    expect(merged.socialFormat).toBeUndefined();
+    expect(merged.motionConcept).toBeUndefined();
+    expect(merged.reasoning).toBe('draft');
   });
 
   it('rejects malformed array revisions instead of crashing renderers', () => {
-    const merged = mergeCritique(draft, { navItems: 'One", "Two' as never, qualityNotes: 'x' });
+    const merged = mergeCritique(draft, {
+      navItems: 'One", "Two' as never,
+      sections: 'malformed' as never,
+      newsItems: 'malformed' as never,
+      contentBlocks: 'malformed' as never,
+      screenNavItems: 'malformed' as never,
+      slides: 'malformed' as never,
+      carouselFrames: 'malformed' as never,
+      qualityNotes: 'x',
+    });
 
     expect(merged.navItems).toEqual(['One', 'Two']);
+    expect(merged.sections).toEqual([{ title: 'Section 1', body: 'Body text' }]);
+    expect(merged.newsItems).toEqual([{ title: 'News', date: '2026-01-01' }]);
+    expect(merged.contentBlocks).toEqual([{ type: 'action', label: 'Go' }]);
+    expect(merged.screenNavItems).toEqual([{ label: 'Home', icon: 'home' }]);
+    expect(merged.slides).toEqual([{ slideType: 'content', headline: 'Headline' }]);
+    expect(merged.carouselFrames).toEqual([{ headline: 'Frame' }]);
   });
 });
 
