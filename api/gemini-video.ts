@@ -24,6 +24,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const startImageDataUrl = typeof body.startImageDataUrl === 'string' ? body.startImageDataUrl : undefined;
 
   const result = await generateVideo(apiKey, model, body.prompt, startImageDataUrl);
-  if (result.ok) res.status(200).json({ result: { videoUrl: result.videoUrl } });
+  if (result.ok === true) res.status(200).json({ result: { videoUrl: result.videoUrl } });
   else res.status(result.status).json({ error: result.error });
 }

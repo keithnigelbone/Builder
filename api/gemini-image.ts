@@ -17,6 +17,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const model = process.env.GEMINI_IMAGE_MODEL || DEFAULT_IMAGE_MODEL;
 
   const result = await generateImage(apiKey, model, (req.body as { prompt: string }).prompt);
-  if (result.ok) res.status(200).json({ result: { dataUrl: result.dataUrl } });
+  if (result.ok === true) res.status(200).json({ result: { dataUrl: result.dataUrl } });
   else res.status(result.status).json({ error: result.error });
 }
