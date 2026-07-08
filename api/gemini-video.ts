@@ -1,0 +1,29 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { DEFAULT_VIDEO_MODEL, generateVideo } from '../App/server/geminiVideoCore';
+import { rejectBadRequest } from './_guards';
+
+/**
+ * Hosted twin of the dev-only Vite proxy (App/geminiVideoProxy.ts) — same
+ * path, same contract, same shared core. Veo jobs run tens of seconds to
+ * minutes, hence the extended maxDuration; the core's own 5-minute deadline
+ * returns a clean 504 JSON inside that window.
+ */
+export const config = { maxDuration: 300 };
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (rejectBadRequest(req, res)) return;
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.status(503).json({ error: 'GEMINI_API_KEY is not configured on this deployment.' });
+    return;
+  }
+  const model = process.env.GEMINI_VIDEO_MODEL || DEFAULT_VIDEO_MODEL;
+
+  const body = req.body as { prompt: string; startImageDataUrl?: unknown };
+  const startImageDataUrl = typeof body.startImageDataUrl === 'string' ? body.startImageDataUrl : undefined;
+
+  const result = await generateVideo(apiKey, model, body.prompt, startImageDataUrl);
+  if (result.ok) res.status(200).json({ result: { videoUrl: result.videoUrl } });
+  else res.status(result.status).json({ error: result.error });
+}
