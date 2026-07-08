@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { SocialPreview } from '../../../App/src/components/previews/SocialPreview';
 import type { BuildPlan } from '../../../App/src/ai/schema';
@@ -50,5 +50,13 @@ describe('SocialPreview formats', () => {
     render(<SocialPreview plan={{ ...basePlan, carouselFrames: undefined }} variantId="carousel" />);
 
     expect(screen.getByText('Solar for every rooftop')).toBeInTheDocument();
+  });
+
+  it('story exposes the hero as an image without swallowing the CTA', () => {
+    render(<SocialPreview plan={{ ...basePlan, heroImage: 'data:image/png;base64,x' }} variantId="story" />);
+
+    const hero = screen.getByRole('img');
+    expect(within(hero).queryByRole('button')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Join the waitlist' })).toBeInTheDocument();
   });
 });

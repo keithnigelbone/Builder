@@ -70,7 +70,8 @@ function StoryVertical({ plan }: { plan: BuildPlan }) {
     ? { backgroundImage: `${HERO_SCRIM}, url(${plan.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { background: 'var(--Surface-Bold)' };
   return (
-    <div role={plan.heroImage ? 'img' : undefined} aria-label={plan.heroImage ? describeHeroImage(plan) : undefined} style={{ height: '100%', ...backdrop }}>
+    <div style={{ height: '100%', position: 'relative', ...backdrop }}>
+      {plan.heroImage && <div role="img" aria-label={describeHeroImage(plan)} style={{ position: 'absolute', inset: 0 }} />}
       <Container
         variant="full-bleed"
         layout="flex"
@@ -78,7 +79,7 @@ function StoryVertical({ plan }: { plan: BuildPlan }) {
         justify="space-between"
         width="full"
         padding="8"
-        style={{ height: '100%', boxSizing: 'border-box' }}
+        style={{ height: '100%', boxSizing: 'border-box', position: 'relative' }}
       >
         <BrandRow plan={plan} />
         <Container variant="full-bleed" layout="flex" direction="column" gap="4" width="full">
@@ -184,7 +185,7 @@ function CarouselFramePreview({ plan, frameIndex }: { plan: BuildPlan; frameInde
           </Text>
         )}
       </Container>
-      <PaginationDots pageCount={frames.length} defaultActiveIndex={index} aria-label="Carousel frames" key={index} />
+      <PaginationDots pageCount={frames.length} activeIndex={index} aria-label="Carousel frames" />
     </Container>
   );
 }
