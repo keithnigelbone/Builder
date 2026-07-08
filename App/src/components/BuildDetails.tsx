@@ -2,6 +2,7 @@ import { Container, Text, Icon, Badge } from '@jds4/oneui-react';
 import type { RecommendedComponent } from '../data/componentRecommendations';
 import type { TokenCategory, TokenSample } from '../data/tokenRecommendations';
 import type { BuildRequest } from '../types';
+import { getPattern, resolvePatternId } from '../data/patternRegistry';
 import { ComponentRecommendations } from './ComponentRecommendations';
 import { TokenRecommendations } from './TokenRecommendations';
 
@@ -70,6 +71,19 @@ function AIReasoningSummary({ request }: { request: BuildRequest }) {
         <ReasoningRow label="Designing the preview" meta={planMeta} />
       </Container>
 
+      <PatternRow request={request} />
+
+      {request.plan.qualityNotes && (
+        <Container variant="full-bleed" layout="flex" direction="column" gap="1" width="full">
+          <Text variant="label" size="XS" weight="high">
+            Quality review
+          </Text>
+          <Text variant="body" size="S" appearance="neutral">
+            {request.plan.qualityNotes}
+          </Text>
+        </Container>
+      )}
+
       {fallbacks.length > 0 && (
         <Container variant="full-bleed" layout="flex" direction="column" gap="1" width="full">
           <Text variant="label" size="XS" appearance="negative">
@@ -96,9 +110,34 @@ function ReasoningRow({ label, meta }: { label: string; meta: BuildRequest['clas
         <Badge size="xs" appearance={meta.source === 'claude' ? 'positive' : 'warning'}>
           {meta.source === 'claude' ? 'Claude' : 'Fallback'}
         </Badge>
+        {meta.model && (
+          <Text variant="label" size="XS" appearance="neutral">
+            {meta.model}
+          </Text>
+        )}
       </Container>
       <Text variant="body" size="S" appearance="neutral">
         {meta.reasoning}
+      </Text>
+    </Container>
+  );
+}
+
+function PatternRow({ request }: { request: BuildRequest }) {
+  const pattern = getPattern(resolvePatternId(request.category.id, request.plan));
+  if (!pattern) return null;
+  return (
+    <Container variant="full-bleed" layout="flex" direction="column" gap="1" width="full">
+      <Container variant="full-bleed" layout="flex" align="center" gap="2">
+        <Text variant="label" size="XS" weight="high">
+          Layout pattern
+        </Text>
+        <Badge size="xs" appearance="primary">
+          {pattern.label}
+        </Badge>
+      </Container>
+      <Text variant="body" size="S" appearance="neutral">
+        Composed from {pattern.storyComponents.join(', ')} stories.
       </Text>
     </Container>
   );
