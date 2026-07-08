@@ -20,3 +20,5 @@ keys.env.rtf
 # Playwright test output — never commit
 test-results/
 playwright-report/
+.vercel
+.env*

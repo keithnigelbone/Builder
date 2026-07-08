@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "echo 'prebuilt deploy - skipping install (local file: deps cannot resolve on Vercel)'",
+  "buildCommand": "echo 'prebuilt deploy - App/dist built locally via npm run app:build'",
+  "outputDirectory": "App/dist"
+}
