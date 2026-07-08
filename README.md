@@ -75,11 +75,14 @@ sent to the browser or included in the client bundle. This proxy only exists und
   See `App/src/data/oneuiRegistry.ts`, `tokenRecommendations.ts`, and
   `relianceBrandMeta.ts` (which knows exactly which CSS custom properties Reliance's own
   brand CSS defines vs. falls back to the shared foundation for).
-- **AI reasoning layer**: `App/src/ai/` — a two-phase flow. Phase 1 classifies the prompt
-  into an output category and proposes follow-up questions; phase 2 authors the actual
-  headline/copy/structure for the preview. Claude never chooses colors, fonts, spacing, or
-  component styling directly — those always come from Reliance's real tokens, applied after
-  the fact by the renderers in `App/src/components/previews/`.
+- **AI reasoning layer**: `App/src/ai/` — an orchestrated pipeline (`orchestrator.ts`):
+  phase 1 classifies the prompt and proposes follow-ups; phase 2 picks a curated
+  Reliance layout pattern (`App/src/data/patternRegistry.ts`) and authors content
+  into it; phase 3 critiques the draft against an art-direction + UX rubric and
+  revises content fields only. Claude never chooses colors, fonts, spacing,
+  component styling, or layouts — patterns and tokens are curated and validated
+  app-side. Primary model `claude-fable-5` with automatic `claude-sonnet-5`
+  fallback (see the env table above).
 - **Preview-first UI**: the rendered preview is the main result. Components, tokens, AI
   reasoning, and fallback notes only appear in the collapsed "Build details" panel
   (`App/src/components/BuildDetails.tsx`).

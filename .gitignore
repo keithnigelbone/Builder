@@ -17,3 +17,7 @@ keys.env.rtf
 .playwright-cli/
 .agents/
 .claude-flow/
+
+# Playwright test output — never commit
+test-results/
+playwright-report/
