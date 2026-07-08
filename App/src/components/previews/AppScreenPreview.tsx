@@ -134,7 +134,7 @@ export function AppScreenPreview({ plan }: { plan: BuildPlan }) {
         <TopBar title={title} />
         <Container variant="full-bleed" layout="flex" direction="column" gap="3" padding="4" grow={1} width="full">
           <Input size="m" placeholder="Search" />
-          <ChipGroup aria-label="Filters" value={[filterChips[0]?.toLowerCase() ?? 'all']} onValueChange={() => {}}>
+          <ChipGroup aria-label="Filters" defaultValue={[filterChips[0]?.toLowerCase() ?? 'all']}>
             <Container variant="full-bleed" layout="flex" gap="2" wrap>
               {filterChips.map((label) => (
                 <Chip key={label} value={label.toLowerCase()} size="s" attention="medium">
