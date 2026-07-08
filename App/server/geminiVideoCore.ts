@@ -7,8 +7,14 @@
  */
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 
-/** Product decision: motion is generated with Veo 2. Override via GEMINI_VIDEO_MODEL. */
-export const DEFAULT_VIDEO_MODEL = 'veo-2.0-generate-001';
+/**
+ * The product decision asked for Veo 2, but the Gemini API no longer serves
+ * it: models/veo-2.0-generate-001 404s ("not found for API version v1beta,
+ * or is not supported for predictLongRunning" — observed live 2026-07-08),
+ * while veo-3.0-generate-001 is proven live on this key. Override via
+ * GEMINI_VIDEO_MODEL if Google ships new ids.
+ */
+export const DEFAULT_VIDEO_MODEL = 'veo-3.0-generate-001';
 
 export type VideoResult = { ok: true; videoUrl: string } | { ok: false; status: number; error: string };
 

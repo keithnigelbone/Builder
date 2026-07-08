@@ -58,7 +58,8 @@ always render something. To get real Claude-authored previews:
    - `GEMINI_IMAGE_MODEL` — Nano image model used by `/api/gemini-image`.
      Default: `gemini-2.5-flash-image`.
    - `GEMINI_VIDEO_MODEL` — Veo model used by `/api/gemini-video`.
-     Default: `veo-2.0-generate-001` (Veo 2).
+     Default: `veo-3.0-generate-001` (Veo 2 was retired from the Gemini API —
+     `veo-2.0-generate-001` now 404s).
 3. Restart `npm run app:dev`
 
 Keys are read server-side only — never sent to the browser or bundled. Locally
@@ -66,7 +67,7 @@ that means the Vite dev-server proxies (`App/aiServerPlugin.ts`,
 `App/geminiImageProxy.ts`, `App/geminiVideoProxy.ts`). On the hosted Vercel
 deployment, `api/gemini-image.ts` and `api/gemini-video.ts` serve the same
 `/api/...` paths as zero-dependency serverless functions sharing the same cores
-(`App/server/`): Nano images and Veo 2 motion work on the hosted site (fallback
+(`App/server/`): Nano images and Veo motion work on the hosted site (fallback
 builds author their image prompts from the curated, art-direction-enforced
 scene library in `App/src/data/sceneTemplates.ts`). Claude is local-only.
 Hosted guards: POST-only, same-origin, 2000-char prompt cap — the Google
