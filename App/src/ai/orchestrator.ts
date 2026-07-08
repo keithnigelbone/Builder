@@ -11,7 +11,7 @@ import { requestHeroImage } from '../media/imageGenerator';
  */
 
 /** Plan fields the critique may revise — content only, mirroring the server-side CRITIQUE_TOOL. */
-const CONTENT_REVISION_KEYS = [
+export const CONTENT_REVISION_KEYS = [
   'headline',
   'subheadline',
   'body',

@@ -131,4 +131,15 @@ describe('requestPlan', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).not.toHaveBeenCalledWith('/api/gemini-image', expect.anything());
   });
+
+  it('defaults the social canvas to the authored socialFormat', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(jsonResponse(200, { result: { headline: 'Hi', socialFormat: 'carousel' } })),
+    );
+
+    const result = await requestPlan({ category: 'social-media', prompt: 'a carousel', answers: {} });
+
+    expect(result.data.dimensionVariant).toBe('carousel');
+  });
 });

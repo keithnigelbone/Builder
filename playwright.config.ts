@@ -9,6 +9,6 @@ export default defineConfig({
     url: 'http://localhost:5199',
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { ...process.env, RELIANCE_BUILDER_DISABLE_AI: '1' },
+    env: { ...process.env, RELIANCE_BUILDER_DISABLE_AI: '1', ANTHROPIC_API_KEY: '', GEMINI_API_KEY: '' },
   },
 });

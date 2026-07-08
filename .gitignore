@@ -2,7 +2,6 @@ node_modules/
 node_modules
 dist/
 .DS_Store
-.superpowers/
 
 # Local secrets -- never commit these (see App/.env.example)
 .env

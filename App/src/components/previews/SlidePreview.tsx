@@ -247,7 +247,7 @@ export function SlidePreview({ slide, heroImage }: { slide: SlideContent; heroIm
     case 'table':
       return <TableSlide slide={slide} />;
     case 'stat':
-      return <StatSlide slide={slide} />;
+      return slide.statValue ? <StatSlide slide={slide} /> : <ContentSlide slide={slide} heroImage={heroImage} />;
     case 'closing':
       return <ClosingSlide slide={slide} />;
     case 'content':

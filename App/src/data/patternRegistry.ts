@@ -48,7 +48,7 @@ export const BUILD_PATTERNS: BuildPattern[] = [
     category: 'website',
     label: 'Editorial',
     whenToUse: 'Announcements, stories, and content-led pages where reading comes first.',
-    sections: ['nav header', 'kicker + left-aligned headline + lede', 'numbered article sections', 'pull-quote', 'related grid', 'footer'],
+    sections: ['nav header', 'kicker + left-aligned headline + lede', 'numbered article sections', 'pull-quote', 'footer'],
     storyComponents: ['Container', 'Text', 'Button', 'Image', 'Surface', 'Divider'],
   },
   {
@@ -77,6 +77,7 @@ export const BUILD_PATTERNS: BuildPattern[] = [
     sections: ['brand mark', 'hero image', 'value-prop headline + body', 'pagination dots', 'primary CTA'],
     storyComponents: ['Container', 'Text', 'Button', 'Image', 'PaginationDots'],
   },
+  // The renderer composes the lighter Input control; the registry claims InputField because the upstream package ships no Input meta (Input has a story but is invisible to AVAILABLE_COMPONENTS).
   {
     id: 'browse',
     category: 'app-screens',
@@ -221,7 +222,7 @@ export function resolvePatternId(
   plan: Pick<BuildPlan, 'patternId' | 'socialFormat' | 'motionConcept'>,
 ): string {
   if (category === 'slides') return 'deck';
-  if (category === 'social-media') return SOCIAL_PATTERN_BY_FORMAT[plan.socialFormat ?? 'square'];
+  if (category === 'social-media') return SOCIAL_PATTERN_BY_FORMAT[plan.socialFormat ?? 'square'] ?? 'announcement';
   if (category === 'motion') return plan.motionConcept ?? 'loader';
   const candidate = plan.patternId ? getPattern(plan.patternId) : undefined;
   if (candidate && candidate.category === category) return candidate.id;

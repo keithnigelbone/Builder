@@ -111,6 +111,10 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     motionConcept: data.motionConcept,
   });
 
+  // A social build must open on the canvas its own format describes —
+  // dimensionVariant ids and socialFormat values match 1:1 for this category.
+  if (input.category === 'social-media' && !data.dimensionVariant) data.dimensionVariant = data.socialFormat;
+
   return { source: 'claude', model: response.model, data };
 }
 

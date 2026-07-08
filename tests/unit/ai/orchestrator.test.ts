@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { generateBuild, mergeCritique } from '../../../App/src/ai/orchestrator';
+import { generateBuild, mergeCritique, CONTENT_REVISION_KEYS } from '../../../App/src/ai/orchestrator';
 import * as client from '../../../App/src/ai/client';
 import * as imageGenerator from '../../../App/src/media/imageGenerator';
 import type { BuildPlan } from '../../../App/src/ai/schema';
+import { CRITIQUE_TOOL } from '../../../App/aiServerPlugin';
 
 vi.mock('../../../App/src/ai/client', async (importOriginal) => {
   const original = await importOriginal<typeof client>();
@@ -110,5 +111,14 @@ describe('generateBuild', () => {
 
     expect(result.data.headline).toBe('Draft headline');
     expect(result.data.qualityNotes).toMatch(/Quality review skipped: overloaded/);
+  });
+});
+
+describe('critique field lockstep', () => {
+  it('every server-revisable content field is client-mergeable', () => {
+    const revisable = Object.keys(CRITIQUE_TOOL.input_schema.properties).filter((k) => k !== 'qualityNotes');
+    for (const key of revisable) {
+      expect(CONTENT_REVISION_KEYS, `${key} is revisable server-side but not merged client-side`).toContain(key);
+    }
   });
 });
