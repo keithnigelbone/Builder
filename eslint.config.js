@@ -14,6 +14,8 @@ export default tseslint.config(
       'oneUI/**',
       'playwright-report/**',
       'test-results/**',
+      // Vercel Build Output API dir — generated bundles from `vercel build`.
+      '.vercel/**',
     ],
   },
   ...tseslint.configs.recommended,

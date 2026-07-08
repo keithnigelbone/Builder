@@ -1,7 +1,7 @@
 import { Container, Surface, Text, Input, Button, Chip, Icon, CircularProgressIndicator } from '@jds4/oneui-react';
 import { BUILD_CATEGORIES } from '../data/buildCategories';
 import type { BuildCategoryId } from '../types';
-import { BrandMark } from './BrandMark';
+import relianceLogo from '../assets/reliance-logo.png';
 
 const CATEGORY_ICONS: Record<BuildCategoryId, string> = {
   website: 'link',
@@ -28,12 +28,7 @@ export function StartScreen({ prompt, onPromptChange, onSubmitPrompt, onSelectCa
   return (
     <Surface mode="default" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Container variant="full-bleed" layout="flex" direction="column" align="center" gap="6" style={{ width: '100%', maxWidth: 640, padding: '0 24px' }}>
-        <Container variant="full-bleed" layout="flex" direction="column" align="center" gap="3">
-          <BrandMark size={36} />
-          <Text variant="display" size="M" textAlign="center">
-            Reliance
-          </Text>
-        </Container>
+        <img src={relianceLogo} alt="Reliance" style={{ width: 240, maxWidth: '60%', height: 'auto' }} />
 
         <Container variant="full-bleed" layout="flex" gap="2" style={{ width: '100%' }}>
           <div style={{ flex: 1 }}>
