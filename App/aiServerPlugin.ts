@@ -222,6 +222,16 @@ export const PLAN_TOOL = {
         },
       },
       socialFormat: { type: 'string', enum: ['square', 'story', 'linkedin', 'carousel'] },
+      carouselFrames: {
+        type: 'array',
+        description:
+          'Social carousel only: 3-5 frames, each one mini-slide advancing a single story — frame one is the hook, the last frame carries the CTA.',
+        items: {
+          type: 'object',
+          properties: { headline: { type: 'string' }, body: { type: 'string' } },
+          required: ['headline'],
+        },
+      },
       badgeLabel: { type: 'string', description: 'Social: small badge/tag text, e.g. "New" or "Live".' },
       motionConcept: {
         type: 'string',

@@ -45,7 +45,17 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
   // clamps the index if the array is ever shorter than the last-viewed
   // position (e.g. after a refinement that changes the deck length).
   const slides: SlideContent[] = plan.slides?.length ? plan.slides : [{ slideType: 'content', headline: plan.headline || 'Untitled slide' }];
-  const currentIndex = Math.min(Math.max(slideIndex, 0), slides.length - 1);
+  const frames = plan.carouselFrames?.length ? plan.carouselFrames : [{ headline: plan.headline || 'Untitled frame' }];
+  // The deck navigator serves two multi-frame formats: slide decks and
+  // social carousels. Which one (if either) is active depends on the
+  // category and, for social, the canvas actually being previewed.
+  const navigator =
+    category === 'slides'
+      ? { count: slides.length, noun: 'Slide' }
+      : category === 'social-media' && variantId === 'carousel'
+        ? { count: frames.length, noun: 'Frame' }
+        : null;
+  const currentIndex = navigator ? Math.min(Math.max(slideIndex, 0), navigator.count - 1) : 0;
 
   return (
     <Surface mode="moderate" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
@@ -53,19 +63,19 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
         {category === 'website' && <WebsitePreview plan={plan} />}
         {category === 'app-screens' && <AppScreenPreview plan={plan} />}
         {category === 'slides' && <SlidePreview slide={slides[currentIndex]} heroImage={plan.heroImage} />}
-        {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} />}
+        {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} frameIndex={currentIndex} />}
         {category === 'motion' && <MotionPreview plan={plan} feelingAnswerId={answers['motion-feeling']} />}
       </PreviewFrame>
 
-      {category === 'slides' && slides.length > 1 && (
+      {navigator && navigator.count > 1 && (
         <Container variant="full-bleed" layout="flex" align="center" justify="center" gap="4" padding="4">
           <Button attention="low" size="s" disabled={currentIndex === 0} onClick={() => setSlideIndex(currentIndex - 1)}>
             Previous
           </Button>
           <Text variant="label" size="S" appearance="neutral">
-            Slide {currentIndex + 1} of {slides.length}
+            {navigator.noun} {currentIndex + 1} of {navigator.count}
           </Text>
-          <Button attention="low" size="s" disabled={currentIndex === slides.length - 1} onClick={() => setSlideIndex(currentIndex + 1)}>
+          <Button attention="low" size="s" disabled={currentIndex === navigator.count - 1} onClick={() => setSlideIndex(currentIndex + 1)}>
             Next
           </Button>
         </Container>

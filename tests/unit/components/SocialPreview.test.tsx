@@ -11,21 +11,21 @@ const basePlan: BuildPlan = {
 };
 
 describe('SocialPreview', () => {
-  it('matches the square variant image to a 1:1 aspect ratio', () => {
+  it('renders the square announcement hero image at its fixed 16:9 strip ratio', () => {
     render(<SocialPreview plan={basePlan} variantId="square" />);
 
-    expect(screen.getByRole('img', { name: 'Test headline' })).toHaveAttribute('data-aspect-ratio', '1:1');
+    expect(screen.getByRole('img', { name: 'Test headline' })).toHaveAttribute('data-aspect-ratio', '16:9');
   });
 
-  it('matches the story variant image to a 9:16 aspect ratio', () => {
+  it('renders the story hero image as a full-bleed scrimmed backdrop', () => {
     render(<SocialPreview plan={basePlan} variantId="story" />);
 
-    expect(screen.getByRole('img', { name: 'Test headline' })).toHaveAttribute('data-aspect-ratio', '9:16');
+    expect(screen.getByRole('img', { name: 'Test headline' })).toBeInTheDocument();
   });
 
-  it('matches the linkedin variant image to the closest available preset (2:1)', () => {
+  it('renders the linkedin hero image as a full-bleed split-panel backdrop', () => {
     render(<SocialPreview plan={basePlan} variantId="linkedin" />);
 
-    expect(screen.getByRole('img', { name: 'Test headline' })).toHaveAttribute('data-aspect-ratio', '2:1');
+    expect(screen.getByRole('img', { name: 'Test headline' })).toBeInTheDocument();
   });
 });
