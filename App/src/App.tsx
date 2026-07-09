@@ -74,8 +74,24 @@ export function App() {
     const answers: GuidedAnswers = { ...step.answers, [question.id]: optionId };
     const answerLabels = { ...step.answerLabels, [question.id]: optionLabel };
 
-    if (step.questionIndex < step.followUps.length - 1) {
-      setStep({ ...step, questionIndex: step.questionIndex + 1, answers, answerLabels });
+    // Picking a bespoke video format needs one extra, free-text step. Injected
+    // only when Custom is chosen so every other destination stays two-question.
+    let followUps = step.followUps;
+    if (question.id === 'video-destination' && optionId === 'custom' && !followUps.some((q) => q.id === 'video-custom-format')) {
+      followUps = [
+        ...followUps,
+        {
+          id: 'video-custom-format',
+          prompt: 'Enter the ratio or size',
+          input: 'text',
+          placeholder: 'e.g. 16:9 or 1920 × 1080',
+          options: [],
+        },
+      ];
+    }
+
+    if (step.questionIndex < followUps.length - 1) {
+      setStep({ ...step, followUps, questionIndex: step.questionIndex + 1, answers, answerLabels });
     } else {
       await generatePlan(step.category, answers, answerLabels, step.freeformPrompt, step.classifyMeta);
     }

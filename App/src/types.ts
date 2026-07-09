@@ -11,6 +11,9 @@ export interface GuidedQuestion {
   id: string;
   prompt: string;
   options: QuestionOption[];
+  /** 'text' renders a free-text input instead of option chips (options ignored). */
+  input?: 'text';
+  placeholder?: string;
 }
 
 export interface BuildCategory {

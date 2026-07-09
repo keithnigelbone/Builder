@@ -9,6 +9,9 @@ export interface FollowUpQuestion {
   id: string;
   prompt: string;
   options: FollowUpOption[];
+  /** 'text' renders a free-text input instead of option chips (options ignored). */
+  input?: 'text';
+  placeholder?: string;
 }
 
 export interface ClassifyResult {
