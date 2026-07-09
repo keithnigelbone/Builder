@@ -15,9 +15,9 @@ import { HERO_SCRIM } from './website/shared';
  */
 
 /** Dashed guide geometry per ratio family — a concept aid, not a broadcast spec. */
-function safeAreaInsets(ratio: string): { inset: string; bands?: 'vertical' | 'horizontal' } {
-  if (ratio === '9:16' || ratio === '4:5') return { inset: '12% 8%', bands: 'horizontal' };
-  if (ratio === '21:9') return { inset: '8% 18%', bands: 'vertical' };
+function safeAreaInsets(ratio: string): { inset: string } {
+  if (ratio === '9:16' || ratio === '4:5') return { inset: '12% 8%' };
+  if (ratio === '21:9') return { inset: '8% 18%' };
   if (ratio === '1.91:1') return { inset: '10% 8%' };
   return { inset: '6% 5%' }; // 16:9, 1:1, and anything custom
 }
@@ -122,14 +122,16 @@ export function VideoConceptDetails({ plan }: { plan: BuildPlan }) {
         )}
       </Container>
 
-      {/* The safe-area copy itself isn't repeated here — it's already in the
-          collapsed Veo-ready prompt below, verbatim (assembleVideoPrompt's
-          format line). Only the destination-specific note, which the
-          assembled prompt never carries, gets a dedicated line. */}
-      {format?.note && (
-        <Text variant="body" size="S" appearance="neutral">
-          {format.note}
-        </Text>
+      {/* Text doesn't forward data-testid to the DOM (it destructures a
+          fixed prop list — see Text.mjs), so the test hook lives on a
+          wrapper div instead. */}
+      {format && (
+        <div data-testid="safe-area-guidance">
+          <Text variant="body" size="S" appearance="neutral">
+            Safe areas: {format.safeArea.join(' ')}
+            {format.note ? ` ${format.note}` : ''}
+          </Text>
+        </div>
       )}
 
       {plan.subheadline && (
@@ -156,8 +158,13 @@ export function VideoConceptDetails({ plan }: { plan: BuildPlan }) {
         </Container>
       )}
 
-      {/* Closing frame isn't repeated as its own line either — it's already
-          in the collapsed prompt's storyboard beats, verbatim. */}
+      {plan.closingFrame && (
+        <div data-testid="closing-frame">
+          <Text variant="body" size="S" appearance="neutral">
+            Closing frame: {plan.closingFrame}
+          </Text>
+        </div>
+      )}
 
       {plan.voiceoverCopy && (
         <Surface mode="subtle" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-2)' }}>

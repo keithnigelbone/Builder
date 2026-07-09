@@ -58,7 +58,7 @@ describe('VideoConceptDetails', () => {
 
     expect(screen.getByText('The work')).toBeInTheDocument();
     expect(screen.getByText('The outcome')).toBeInTheDocument();
-    expect(screen.getByText(/Reliance mark on a bold surface/)).toBeInTheDocument();
+    expect(screen.getByTestId('closing-frame')).toHaveTextContent('Reliance mark on a bold surface.');
     expect(screen.getByText(/"The work is real."/)).toBeInTheDocument();
   });
 
@@ -72,7 +72,7 @@ describe('VideoConceptDetails', () => {
   it('shows the safe-area guidance and the generate affordance', () => {
     render(<VideoConceptDetails plan={plan} />);
 
-    expect(screen.getByText(/Keep text large and centred/)).toBeInTheDocument();
+    expect(screen.getByTestId('safe-area-guidance')).toHaveTextContent('Keep text large and centred.');
     expect(screen.getByRole('button', { name: /Generate video/ })).toBeInTheDocument();
   });
 });
