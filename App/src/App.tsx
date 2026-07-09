@@ -5,6 +5,7 @@ import { generateBuild } from './ai/orchestrator';
 import { StartScreen } from './components/StartScreen';
 import { GuidedQuestionScreen } from './components/GuidedQuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { nextFollowUps } from './data/videoCustomQuestion';
 import type { AIMeta, AppStep, BuildCategory, BuildCategoryId, GuidedAnswers } from './types';
 
 export function App() {
@@ -75,20 +76,9 @@ export function App() {
     const answerLabels = { ...step.answerLabels, [question.id]: optionLabel };
 
     // Picking a bespoke video format needs one extra, free-text step. Injected
-    // only when Custom is chosen so every other destination stays two-question.
-    let followUps = step.followUps;
-    if (question.id === 'video-destination' && optionId === 'custom' && !followUps.some((q) => q.id === 'video-custom-format')) {
-      followUps = [
-        ...followUps,
-        {
-          id: 'video-custom-format',
-          prompt: 'Enter the ratio or size',
-          input: 'text',
-          placeholder: 'e.g. 16:9 or 1920 × 1080',
-          options: [],
-        },
-      ];
-    }
+    // only when Custom is chosen so every other destination stays two-question,
+    // and pruned again if the user backs up and switches away from Custom.
+    const followUps = nextFollowUps(step.followUps, question.id, optionId);
 
     if (step.questionIndex < followUps.length - 1) {
       setStep({ ...step, followUps, questionIndex: step.questionIndex + 1, answers, answerLabels });
