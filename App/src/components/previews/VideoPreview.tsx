@@ -26,14 +26,29 @@ export function VideoPreview({ plan }: { plan: BuildPlan }) {
   const format = plan.videoFormat;
   const guides = safeAreaInsets(format?.ratio ?? '16:9');
 
-  const backdrop = plan.heroImage
-    ? { backgroundImage: `${HERO_SCRIM}, url(${plan.heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-    : { background: 'var(--Surface-Bold)' };
-
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', ...backdrop }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        background: plan.heroImage ? undefined : 'var(--Surface-Bold)',
+      }}
+    >
+      {/* A real <img> rather than a CSS background: Chromium silently refused
+          to paint multi-layer backgrounds whose image layer is a multi-MB
+          data URL (observed live on the hosted canvas — computed style kept
+          the layers, paint never happened), while <img> data URLs render
+          reliably everywhere in this app. */}
       {plan.heroImage && (
-        <div role="img" aria-label={describeHeroImage(plan)} style={{ position: 'absolute', inset: 0 }} />
+        <>
+          <img
+            src={plan.heroImage}
+            alt={describeHeroImage(plan)}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: HERO_SCRIM }} />
+        </>
       )}
 
       {/* Safe-area guides — always on: this is a concept artifact. */}
