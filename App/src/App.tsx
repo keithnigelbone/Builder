@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BUILD_CATEGORIES, getBuildCategory } from './data/buildCategories';
+import { BUILD_CATEGORIES, getBuildCategory, initialFollowUps } from './data/buildCategories';
 import { requestClassification } from './ai/client';
 import { generateBuild } from './ai/orchestrator';
 import { StartScreen } from './components/StartScreen';
@@ -28,7 +28,7 @@ export function App() {
     };
     // A quick-action click already tells us the category — don't let the
     // model second-guess it, but its follow-up questions are still useful.
-    const followUps = classification.data.followUps.length ? classification.data.followUps : category.questions;
+    const followUps = initialFollowUps(category, classification.data.followUps);
 
     if (followUps.length === 0) {
       await generatePlan(category, {}, {}, freeformPrompt, classifyMeta);

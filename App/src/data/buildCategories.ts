@@ -1,4 +1,5 @@
 import type { BuildCategory } from '../types';
+import type { FollowUpQuestion } from '../ai/schema';
 
 /**
  * The five things this app can help build, and the two guided questions asked
@@ -192,4 +193,16 @@ export const BUILD_CATEGORIES: BuildCategory[] = [
 
 export function getBuildCategory(id: string): BuildCategory | undefined {
   return BUILD_CATEGORIES.find((category) => category.id === id);
+}
+
+/**
+ * Which follow-ups start a guided flow. Claude's classify follow-ups are
+ * usually sharper than the hand-authored defaults — except for video, whose
+ * destination question is STRUCTURAL: the ratio/dimensions resolver and the
+ * Custom free-text step both key on `video-destination`, so model-authored
+ * questions must never replace it.
+ */
+export function initialFollowUps(category: BuildCategory, classifiedFollowUps: FollowUpQuestion[]): FollowUpQuestion[] {
+  if (category.id === 'video') return category.questions;
+  return classifiedFollowUps.length ? classifiedFollowUps : category.questions;
 }
