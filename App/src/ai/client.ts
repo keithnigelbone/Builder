@@ -70,6 +70,7 @@ export interface PlanInput {
   prompt: string;
   answers: GuidedAnswers;
   refinement?: string;
+  videoFormatContext?: string;
 }
 
 export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>> {
@@ -80,6 +81,7 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     answers: input.answers,
     refinement: input.refinement,
     availableComponents: [...AVAILABLE_COMPONENT_NAMES],
+    videoFormatContext: input.videoFormatContext,
   });
   if (response.ok === false) return fallbackPlan(input, response.error);
 
@@ -102,6 +104,7 @@ export async function requestPlan(input: PlanInput): Promise<AIResult<BuildPlan>
     screenNavItems: asArray(raw.screenNavItems),
     slides: asArray(raw.slides),
     carouselFrames: asArray(raw.carouselFrames),
+    keyScenes: asArray(raw.keyScenes),
     recommendedComponentNames,
     reasoning: raw.reasoning || 'Authored by Claude.',
   };

@@ -1,6 +1,7 @@
 import type { AIResult, BuildPlan } from './schema';
 import { requestCritique, requestPlan, type PlanInput } from './client';
 import { requestHeroImage } from '../media/imageGenerator';
+import { resolveVideoFormatForBuild } from '../data/videoFormats';
 
 /**
  * Composes the build pipeline: plan → critique → media. client.ts stays the
@@ -29,6 +30,11 @@ export const CONTENT_REVISION_KEYS = [
   'carouselFrames',
   'badgeLabel',
   'motionDescription',
+  'recommendedDuration',
+  'openingShot',
+  'keyScenes',
+  'closingFrame',
+  'voiceoverCopy',
   'imageSubject',
   'imageAction',
   'imageLocation',
@@ -38,7 +44,16 @@ export const CONTENT_REVISION_KEYS = [
 ] as const;
 
 /** Fields that must be real arrays — same malformed-string defence client.ts applies to plan responses. */
-const ARRAY_KEYS = new Set<string>(['navItems', 'sections', 'newsItems', 'contentBlocks', 'screenNavItems', 'slides', 'carouselFrames']);
+const ARRAY_KEYS = new Set<string>([
+  'navItems',
+  'sections',
+  'newsItems',
+  'contentBlocks',
+  'screenNavItems',
+  'slides',
+  'carouselFrames',
+  'keyScenes',
+]);
 
 export function mergeCritique(draft: BuildPlan, revision: Partial<BuildPlan> & { qualityNotes?: string }): BuildPlan {
   const merged: BuildPlan = { ...draft };
@@ -53,9 +68,22 @@ export function mergeCritique(draft: BuildPlan, revision: Partial<BuildPlan> & {
 }
 
 export async function generateBuild(input: PlanInput, onStage?: (label: string) => void): Promise<AIResult<BuildPlan>> {
+  // The video format is structural: resolved from the guided answers, given
+  // to the model as context only, and stamped onto the plan afterwards —
+  // whatever the model or critique says, this value wins.
+  const videoFormat = input.category === 'video' ? resolveVideoFormatForBuild(input.answers, input.prompt) : undefined;
+
   onStage?.('Designing your preview…');
-  const planResult = await requestPlan(input);
+  const planResult = await requestPlan(
+    videoFormat
+      ? {
+          ...input,
+          videoFormatContext: `${videoFormat.label} — ${videoFormat.ratio}, ${videoFormat.width}×${videoFormat.height}. Safe areas: ${videoFormat.safeArea.join(' ')}`,
+        }
+      : input,
+  );
   let plan = planResult.data;
+  if (videoFormat) plan.videoFormat = videoFormat;
 
   // Only critique real Claude drafts — fallbackPlan.ts's deterministic
   // content is honest placeholder copy; "improving" it would only disguise

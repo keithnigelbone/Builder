@@ -49,7 +49,15 @@ clear, presentation-ready CONTENT (headlines, copy, structure) for the chosen fo
 
 ${RELIANCE_BRAND_VOICE}
 
-${RELIANCE_REAL_CONTEXT}`;
+${RELIANCE_REAL_CONTEXT}
+
+For "video" builds you author a storyboard-level film concept: title (headline),
+concept summary (subheadline), visual direction (body), recommended duration, an
+opening shot, 3-5 key scenes, a closing frame, and voiceover/on-screen copy. The
+delivery format (ratio, dimensions, safe areas) is decided by the app from the
+user's destination choice and given to you as context — compose FOR it: framing,
+text-safe areas, title/CTA placement and visual density must fit that ratio, not
+merely mention it.`;
 
 function buildCritiqueSystemPrompt(category: string): string {
   const hints = [...getUiUxQualityHints(category), ...(getFramerQualityHints() ?? [])];
@@ -70,6 +78,7 @@ interface PlanRequestBody {
   answers: Record<string, string>;
   refinement?: string;
   availableComponents: string[];
+  videoFormatContext?: string;
 }
 
 interface CritiqueRequestBody {
@@ -238,6 +247,24 @@ export const PLAN_TOOL = {
         enum: ['loader', 'transition', 'intro-animation', 'product-reveal', 'micro-interaction'],
       },
       motionDescription: { type: 'string', description: 'One sentence describing what the motion should feel like.' },
+      recommendedDuration: { type: 'string', description: 'Video only: recommended film length, e.g. "45–60 seconds".' },
+      openingShot: { type: 'string', description: 'Video only: the opening shot, described concretely per the art-direction rules.' },
+      keyScenes: {
+        type: 'array',
+        minItems: 3,
+        maxItems: 5,
+        description: 'Video only: 3-5 storyboard beats that build one story toward the closing frame.',
+        items: {
+          type: 'object',
+          properties: {
+            title: { type: 'string', description: 'Two or three words naming the beat.' },
+            description: { type: 'string', description: 'What the camera sees — concrete, physical, on-format.' },
+          },
+          required: ['title', 'description'],
+        },
+      },
+      closingFrame: { type: 'string', description: 'Video only: the final frame / end card.' },
+      voiceoverCopy: { type: 'string', description: 'Video only: a line or two of voiceover or on-screen copy.' },
       dimensionVariant: {
         type: 'string',
         description: 'Preferred canvas variant for this format, e.g. "desktop"/"tablet"/"mobile" for website.',
@@ -438,6 +465,9 @@ export function claudeApiProxy(): Plugin {
               )
                 .map((p) => `${p.id} — ${p.whenToUse}`)
                 .join('; ') || 'none — omit patternId'}`,
+              body.category === 'video'
+                ? `Video format (decided by the app — compose for it): ${body.videoFormatContext ?? 'Keynote / AGM screen — 16:9, 1920×1080.'}`
+                : '',
             ].filter(Boolean);
 
             const planSystemPrompt = `${RELIANCE_SYSTEM_PROMPT}\n\n${RELIANCE_ART_DIRECTION}`;
