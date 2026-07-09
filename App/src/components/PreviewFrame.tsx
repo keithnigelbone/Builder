@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Container, SelectableButton, Surface } from '@jds4/oneui-react';
-import { DIMENSIONS } from '../data/previewDimensions';
+import { DIMENSIONS, type DimensionVariant } from '../data/previewDimensions';
 import { computeFitFrame } from './previewFit';
 import type { BuildCategoryId } from '../types';
 
@@ -12,6 +12,7 @@ interface PreviewFrameProps {
   onVariantChange: (id: string) => void;
   chrome: Chrome;
   children: ReactNode;
+  overrideDimensions?: DimensionVariant;
 }
 
 /**
@@ -21,9 +22,9 @@ interface PreviewFrameProps {
  * preview is proportionally accurate instead of an arbitrary aspect-ratio
  * box with guessed content sizing.
  */
-export function PreviewFrame({ category, variantId, onVariantChange, chrome, children }: PreviewFrameProps) {
+export function PreviewFrame({ category, variantId, onVariantChange, chrome, children, overrideDimensions }: PreviewFrameProps) {
   const variants = DIMENSIONS[category];
-  const variant = variants.find((v) => v.id === variantId) ?? variants[0];
+  const variant = overrideDimensions ?? variants.find((v) => v.id === variantId) ?? variants[0];
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(720);
 
@@ -52,7 +53,7 @@ export function PreviewFrame({ category, variantId, onVariantChange, chrome, chi
 
   return (
     <Container variant="full-bleed" layout="flex" direction="column" gap="3" width="full">
-      {variants.length > 1 && (
+      {variants.length > 1 && !overrideDimensions && (
         <Container variant="full-bleed" layout="flex" gap="2" wrap>
           {variants.map((v) => (
             <SelectableButton key={v.id} size="s" selected={v.id === variant.id} onSelectedChange={() => onVariantChange(v.id)}>

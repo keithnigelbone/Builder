@@ -9,6 +9,7 @@ import { AppScreenPreview } from './previews/AppScreenPreview';
 import { SlidePreview } from './previews/SlidePreview';
 import { SocialPreview } from './previews/SocialPreview';
 import { MotionPreview } from './previews/MotionPreview';
+import { VideoPreview, VideoConceptDetails } from './previews/VideoPreview';
 
 const CHROME_BY_CATEGORY: Record<BuildCategoryId, 'browser' | 'phone' | 'none'> = {
   website: 'browser',
@@ -60,12 +61,19 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
 
   return (
     <Surface mode="moderate" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
-      <PreviewFrame category={category} variantId={variantId} onVariantChange={setVariantId} chrome={CHROME_BY_CATEGORY[category]}>
+      <PreviewFrame
+        category={category}
+        variantId={variantId}
+        onVariantChange={setVariantId}
+        chrome={CHROME_BY_CATEGORY[category]}
+        overrideDimensions={category === 'video' ? plan.videoFormat : undefined}
+      >
         {category === 'website' && <WebsitePreview plan={plan} />}
         {category === 'app-screens' && <AppScreenPreview plan={plan} />}
         {category === 'slides' && <SlidePreview slide={slides[currentIndex]} heroImage={plan.heroImage} />}
         {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} frameIndex={currentIndex} />}
         {category === 'motion' && <MotionPreview plan={plan} feelingAnswerId={answers['motion-feeling']} />}
+        {category === 'video' && <VideoPreview plan={plan} />}
       </PreviewFrame>
 
       {navigator && navigator.count > 1 && (
@@ -81,6 +89,8 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
           </Button>
         </Container>
       )}
+
+      {category === 'video' && <VideoConceptDetails plan={plan} />}
     </Surface>
   );
 }
