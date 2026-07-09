@@ -42,3 +42,20 @@ test('quick CTAs start a category directly', async ({ page }) => {
 
   await expect(page.getByText('What kind of slide do you want to create?')).toBeVisible();
 });
+
+test('video builds render a storyboard at the destination ratio', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByText('Video', { exact: true }).click();
+
+  await expect(page.getByText('Where will this video be used?')).toBeVisible();
+  await page.getByText('Instagram Story / Reel', { exact: true }).click();
+
+  await expect(page.getByText('What should the film feel like?')).toBeVisible();
+  await page.getByText('Grounded & real', { exact: true }).click();
+
+  await expect(page.getByText("Here's what we'd build")).toBeVisible();
+  await expect(page.getByText('9:16').first()).toBeVisible();
+  await expect(page.getByText('1080 × 1920')).toBeVisible();
+  await expect(page.getByText('Veo-ready prompt')).toBeVisible();
+});
