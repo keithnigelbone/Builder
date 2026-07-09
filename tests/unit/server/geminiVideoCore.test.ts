@@ -90,4 +90,24 @@ describe('generateVideo', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain('Could not find a video URI');
   });
+
+  it('sends parameters.aspectRatio when the option is given', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 400, text: async () => 'stop' } as unknown as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    await generateVideo('key', DEFAULT_VIDEO_MODEL, 'p', undefined, { ...FAST, aspectRatio: '9:16' });
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.parameters).toEqual({ aspectRatio: '9:16' });
+  });
+
+  it('omits parameters entirely when no aspect is given', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: false, status: 400, text: async () => 'stop' } as unknown as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    await generateVideo('key', DEFAULT_VIDEO_MODEL, 'p', undefined, FAST);
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.parameters).toBeUndefined();
+  });
 });

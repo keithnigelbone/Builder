@@ -1,5 +1,6 @@
 import type { BuildPlan } from '../ai/schema';
 import { assembleImagePrompt } from './imageGenerator';
+import { assembleVideoPrompt } from '../ai/videoPrompt';
 
 /**
  * Client half of motion-video generation ("media/videoGenerator"). The same
@@ -13,10 +14,15 @@ export async function requestMotionVideo(plan: BuildPlan): Promise<{ videoUrl?: 
   }
 
   try {
+    const isVideoConcept = !!plan.videoFormat;
     const res = await fetch('/api/gemini-video', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt: assembleImagePrompt(plan), startImageDataUrl: plan.heroImage }),
+      body: JSON.stringify({
+        prompt: isVideoConcept ? assembleVideoPrompt(plan) : assembleImagePrompt(plan),
+        startImageDataUrl: plan.heroImage,
+        aspectRatio: plan.videoFormat?.veoAspectRatio,
+      }),
     });
     const json = await res.json();
     if (!res.ok) return { error: json.error ?? `HTTP ${res.status}` };

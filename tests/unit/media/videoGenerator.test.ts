@@ -31,4 +31,46 @@ describe('requestMotionVideo', () => {
 
     expect((await requestMotionVideo(plan)).videoUrl).toBe('blob:video');
   });
+
+  it('sends the assembled video prompt and aspect for video-format plans', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ result: { videoUrl: 'blob:v' } }) } as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const plan: BuildPlan = {
+      imageSubject: 's',
+      imageAction: 'a',
+      imageLocation: 'l',
+      imageFraming: 'f',
+      openingShot: 'Open close.',
+      videoFormat: {
+        id: 'instagram-story',
+        label: 'Instagram Story / Reel',
+        ratio: '9:16',
+        width: 1080,
+        height: 1920,
+        safeArea: ['Keep text large and centred.'],
+        veoAspectRatio: '9:16',
+      },
+      recommendedComponentNames: [],
+      reasoning: '',
+    };
+
+    await requestMotionVideo(plan);
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.aspectRatio).toBe('9:16');
+    expect(body.prompt).toContain('Deliver at 9:16 (1080×1920)');
+  });
+
+  it('sends no aspect and the plain scene prompt for motion plans (unchanged)', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ result: { videoUrl: 'blob:v' } }) } as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const plan: BuildPlan = { imageSubject: 's', imageAction: 'a', imageLocation: 'l', imageFraming: 'f', recommendedComponentNames: [], reasoning: '' };
+    await requestMotionVideo(plan);
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.aspectRatio).toBeUndefined();
+    expect(body.prompt).not.toContain('Deliver at');
+  });
 });

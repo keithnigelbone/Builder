@@ -48,7 +48,7 @@ export async function generateVideo(
   model: string,
   prompt: string,
   startImageDataUrl?: string,
-  options?: { pollIntervalMs?: number; pollTimeoutMs?: number },
+  options?: { pollIntervalMs?: number; pollTimeoutMs?: number; aspectRatio?: '16:9' | '9:16' },
 ): Promise<VideoResult> {
   const pollIntervalMs = options?.pollIntervalMs ?? 5_000;
   const pollTimeoutMs = options?.pollTimeoutMs ?? 5 * 60 * 1000;
@@ -60,10 +60,13 @@ export async function generateVideo(
       if (match) instance.image = { mimeType: match[1], bytesBase64Encoded: match[2] };
     }
 
+    const requestBody: Record<string, unknown> = { instances: [instance] };
+    if (options?.aspectRatio) requestBody.parameters = { aspectRatio: options.aspectRatio };
+
     const startRes = await fetch(`${GEMINI_API_BASE}/models/${model}:predictLongRunning`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
-      body: JSON.stringify({ instances: [instance] }),
+      body: JSON.stringify(requestBody),
     });
     if (!startRes.ok) {
       const text = await startRes.text().catch(() => '');

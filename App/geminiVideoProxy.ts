@@ -15,6 +15,7 @@ import { DEFAULT_VIDEO_MODEL, generateVideo } from './server/geminiVideoCore';
 interface VideoRequestBody {
   prompt: string;
   startImageDataUrl?: string;
+  aspectRatio?: string;
 }
 
 function readJsonBody(req: IncomingMessage): Promise<VideoRequestBody> {
@@ -62,7 +63,8 @@ export function geminiVideoProxy(): Plugin {
             return;
           }
 
-          const result = await generateVideo(apiKey, model, body.prompt, body.startImageDataUrl);
+          const aspectRatio = body.aspectRatio === '16:9' || body.aspectRatio === '9:16' ? body.aspectRatio : undefined;
+          const result = await generateVideo(apiKey, model, body.prompt, body.startImageDataUrl, aspectRatio ? { aspectRatio } : undefined);
           if (result.ok) sendJson(res, 200, { result: { videoUrl: result.videoUrl } });
           else sendJson(res, result.status, { error: result.error });
         } catch (err) {
