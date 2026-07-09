@@ -63,6 +63,19 @@ export function VideoPreview({ plan }: { plan: BuildPlan }) {
         }}
       />
 
+      {/* Container renders as a Surface in mode="ghost" (its default when no
+          `surface` prop is passed), which paints an opaque background
+          matching the nearest ANCESTOR SURFACE's resolved step — not true
+          CSS transparency. That ancestor is FrameChrome's `<Surface
+          mode="default">` (PreviewFrame.tsx), which resolves to opaque
+          white. Every Container here (this one and the two nested ones
+          below) therefore painted solid white on top of the absolutely
+          positioned img/scrim behind it, in DOM/paint order — hiding the
+          backdrop completely regardless of whether it was a CSS
+          background or an <img> element. `background: 'transparent'` on
+          each Container's inline style overrides that opaque paint (inline
+          styles win over the generated data-surface-step stylesheet rule)
+          without changing layout. */}
       <Container
         variant="full-bleed"
         layout="flex"
@@ -70,9 +83,9 @@ export function VideoPreview({ plan }: { plan: BuildPlan }) {
         justify="space-between"
         width="full"
         padding="10"
-        style={{ position: 'relative', height: '100%', boxSizing: 'border-box' }}
+        style={{ position: 'relative', height: '100%', boxSizing: 'border-box', background: 'transparent' }}
       >
-        <Container variant="full-bleed" layout="flex" justify="space-between" align="center" width="full">
+        <Container variant="full-bleed" layout="flex" justify="space-between" align="center" width="full" style={{ background: 'transparent' }}>
           {format && (
             <Badge size="m" appearance="brand-bg">
               {format.ratio}
@@ -85,7 +98,7 @@ export function VideoPreview({ plan }: { plan: BuildPlan }) {
           )}
         </Container>
 
-        <Container variant="full-bleed" layout="flex" direction="column" gap="3" width="full">
+        <Container variant="full-bleed" layout="flex" direction="column" gap="3" width="full" style={{ background: 'transparent' }}>
           <Text variant="display" size="M" style={{ color: 'var(--Text-OnBold-High, #fff)', maxWidth: '90%' }}>
             {plan.headline}
           </Text>
