@@ -21,7 +21,7 @@ const BANNED = [
 
 describe('scene template compliance', () => {
   it('covers exactly the four media categories, three-plus scenes each', () => {
-    expect(CATEGORIES.sort()).toEqual(['app-screens', 'motion', 'social-media', 'website']);
+    expect(CATEGORIES.sort()).toEqual(['app-screens', 'motion', 'social-media', 'video', 'website']);
     for (const category of CATEGORIES) {
       expect(SCENE_TEMPLATES[category].length, `${category} needs >= 3 scenes`).toBeGreaterThanOrEqual(3);
     }

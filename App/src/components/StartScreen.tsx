@@ -9,6 +9,7 @@ const CATEGORY_ICONS: Record<BuildCategoryId, string> = {
   slides: 'copy',
   'social-media': 'share',
   motion: 'play',
+  video: 'grid',
 };
 
 interface StartScreenProps {

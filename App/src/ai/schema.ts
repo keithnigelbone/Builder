@@ -106,6 +106,31 @@ export interface BuildPlan {
   patternId?: string;
   /** One-line summary from the critique pass — shown in Build details. */
   qualityNotes?: string;
+  /**
+   * Video: the destination-resolved format. STRUCTURAL — attached by the
+   * orchestrator from data/videoFormats.ts, never authored or revised by
+   * the model (deliberately absent from the plan/critique tool schemas).
+   */
+  videoFormat?: {
+    id: string;
+    label: string;
+    ratio: string;
+    width: number;
+    height: number;
+    safeArea: string[];
+    veoAspectRatio: '16:9' | '9:16';
+    note?: string;
+  };
+  /** Video: e.g. "45–60 seconds". */
+  recommendedDuration?: string;
+  /** Video: the opening shot, described concretely. */
+  openingShot?: string;
+  /** Video: 3-5 storyboard beats. */
+  keyScenes?: { title: string; description: string }[];
+  /** Video: the final frame / end card. */
+  closingFrame?: string;
+  /** Video: voiceover or on-screen copy, a line or two. */
+  voiceoverCopy?: string;
   reasoning: string;
 }
 

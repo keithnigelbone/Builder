@@ -4,7 +4,7 @@ import { fallbackPlan } from '../../../App/src/ai/fallbackPlan';
 const input = { prompt: 'a rooftop solar campaign', answers: {} };
 
 describe('fallbackPlan scene templates', () => {
-  it.each(['website', 'app-screens', 'social-media', 'motion'] as const)('gives %s a complete art-directed scene', (category) => {
+  it.each(['website', 'app-screens', 'social-media', 'motion', 'video'] as const)('gives %s a complete art-directed scene', (category) => {
     const plan = fallbackPlan({ ...input, category }, 'no key').data;
 
     expect(plan.imageSubject).toBeTruthy();

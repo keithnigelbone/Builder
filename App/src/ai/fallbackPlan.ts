@@ -14,6 +14,7 @@ import type { AIResult, BuildPlan, ClassifyResult } from './schema';
 /** Very small keyword match so a typed prompt still lands in a sensible guided flow. */
 function inferCategoryFromPrompt(prompt: string): BuildCategoryId {
   const text = prompt.toLowerCase();
+  if (/(video|film|reel|storyboard|agm|keynote)/.test(text)) return 'video';
   if (/(app|screen|mobile|checkout|onboarding)/.test(text)) return 'app-screens';
   if (/(slide|deck|presentation|pitch)/.test(text)) return 'slides';
   if (/(social|post|instagram|story|carousel|linkedin)/.test(text)) return 'social-media';
@@ -49,6 +50,7 @@ const HEADLINE_BY_CATEGORY: Record<BuildCategoryId, string> = {
   slides: 'Key message goes here',
   'social-media': 'Call to action headline',
   motion: 'Motion concept',
+  video: 'A film that shows the work',
 };
 
 /**
@@ -62,6 +64,7 @@ const PATTERN_BY_CATEGORY: Record<BuildCategoryId, string> = {
   slides: 'deck',
   'social-media': 'announcement',
   motion: 'loader',
+  video: 'video-storyboard',
 };
 
 export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPlan> {
@@ -122,6 +125,15 @@ export function fallbackPlan(input: PlanInput, reason: string): AIResult<BuildPl
     badgeLabel: 'New',
     motionConcept: 'loader',
     motionDescription: 'A steady, confident loading state.',
+    recommendedDuration: '45–60 seconds',
+    openingShot: 'Open on the art-directed scene — hands mid-task, light raking from one side.',
+    keyScenes: [
+      { title: 'The work', description: 'Stay close on the task; let the environment reveal its scale behind it.' },
+      { title: 'The reach', description: 'Widen out: the same work repeating across the site, the street, the state.' },
+      { title: 'The outcome', description: 'One person using what the work delivers, unposed and specific.' },
+    ],
+    closingFrame: 'Reliance mark on a bold surface with the campaign line.',
+    voiceoverCopy: 'The work is real. So is what it changes.',
     recommendedComponentNames: components.map((c) => c.meta.name),
     reasoning:
       'No live reasoning available for this request — used a generic on-brand layout for this category instead of AI-authored content.' +

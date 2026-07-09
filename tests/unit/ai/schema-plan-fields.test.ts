@@ -32,6 +32,7 @@ describe('fallbackPlan pattern defaults', () => {
     ['slides', 'deck'],
     ['social-media', 'announcement'],
     ['motion', 'loader'],
+    ['video', 'video-storyboard'],
   ] as const)('assigns the %s default pattern %s', (category, patternId) => {
     expect(fallbackPlan({ ...input, category }, 'why').data.patternId).toBe(patternId);
   });

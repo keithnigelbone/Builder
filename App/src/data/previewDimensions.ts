@@ -31,6 +31,7 @@ export const DIMENSIONS: Record<BuildCategoryId, DimensionVariant[]> = {
     { id: 'carousel', label: 'Carousel', width: 1080, height: 1080 },
   ],
   motion: [{ id: 'panel', label: 'Preview', width: 480, height: 480 }],
+  video: [{ id: 'concept', label: 'Concept', width: 1920, height: 1080 }],
 };
 
 export function getDefaultVariant(category: BuildCategoryId): DimensionVariant {

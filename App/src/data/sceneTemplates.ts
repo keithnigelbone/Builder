@@ -109,6 +109,28 @@ export const SCENE_TEMPLATES: Record<SceneCategory, ArtDirectedScene[]> = {
       imageColourNotes: 'teal and rust-orange containers against grey wharf concrete',
     },
   ],
+  video: [
+    {
+      imageSubject: 'A plant supervisor in a khaki uniform and white hard hat, lanyard tucked into a chest pocket',
+      imageAction: 'both hands unrolling a schematic across a steel walkway railing',
+      imageLocation: 'a refinery gantry outside Jamnagar at dawn, pipework receding into haze',
+      imageFraming: 'medium close-up, slight low angle, railing anchoring the foreground',
+    },
+    {
+      imageSubject: 'A store associate in a navy polo, sleeves pushed to the elbow',
+      imageAction: 'both hands pinning a festive garland across a shelf-edge display',
+      imageLocation: 'a Jaipur retail store at opening hour, aisles of stacked fabric bolts behind her',
+      imageFraming: 'medium close-up, slight low angle, shelf edge soft in the foreground',
+    },
+    {
+      imageSubject: 'A turbine blade on a flatbed trailer turning onto a coastal service jetty',
+      imageAction: 'a ground crew guiding the blade with both arms raised in signal',
+      imageLocation: 'the Gujarat shoreline at low tide, turbine towers along the water line',
+      imageFraming: 'true top-down aerial, wide enough to show the full blade length',
+      imageIsAerial: true,
+      imageColourNotes: 'white blade, teal shallows and wet grey sand',
+    },
+  ],
 };
 
 /**

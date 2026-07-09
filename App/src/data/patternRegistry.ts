@@ -188,6 +188,16 @@ export const BUILD_PATTERNS: BuildPattern[] = [
     sections: ['animated control stage'],
     storyComponents: ['Switch', 'Container', 'Text'],
   },
+
+  // ---- Video (fixed: the destination step, not the model, decides the format) ----
+  {
+    id: 'video-storyboard',
+    category: 'video',
+    label: 'Storyboard',
+    whenToUse: 'Every video build — a destination-formatted storyboard concept: title, opening shot, key scenes, closing frame, voiceover copy.',
+    sections: ['format meta', 'true-ratio concept canvas with safe-area guides', 'key-scene strip', 'closing frame', 'voiceover copy', 'Veo-ready prompt'],
+    storyComponents: ['Container', 'Text', 'Surface', 'Badge', 'Image', 'Button'],
+  },
 ];
 
 const BY_ID = new Map(BUILD_PATTERNS.map((p) => [p.id, p]));
@@ -222,6 +232,7 @@ export function resolvePatternId(
   plan: Pick<BuildPlan, 'patternId' | 'socialFormat' | 'motionConcept'>,
 ): string {
   if (category === 'slides') return 'deck';
+  if (category === 'video') return 'video-storyboard';
   if (category === 'social-media') return SOCIAL_PATTERN_BY_FORMAT[plan.socialFormat ?? 'square'] ?? 'announcement';
   if (category === 'motion') return plan.motionConcept ?? 'loader';
   const candidate = plan.patternId ? getPattern(plan.patternId) : undefined;

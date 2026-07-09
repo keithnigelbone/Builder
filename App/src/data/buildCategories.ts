@@ -155,6 +155,39 @@ export const BUILD_CATEGORIES: BuildCategory[] = [
       },
     ],
   },
+  {
+    id: 'video',
+    label: 'Video',
+    description: 'Brand films, campaign video and event screens',
+    questions: [
+      {
+        id: 'video-destination',
+        prompt: 'Where will this video be used?',
+        options: [
+          { id: 'keynote-agm', label: 'Keynote / AGM screen' },
+          { id: 'auditorium-ultrawide', label: 'Auditorium ultra-wide screen' },
+          { id: 'youtube-website', label: 'YouTube / website' },
+          { id: 'linkedin-feed', label: 'LinkedIn feed' },
+          { id: 'instagram-feed', label: 'Instagram / social feed' },
+          { id: 'instagram-story', label: 'Instagram Story / Reel' },
+          { id: 'square-social', label: 'Square social post' },
+          { id: 'digital-display', label: 'Digital display' },
+          { id: 'custom', label: 'Custom' },
+        ],
+      },
+      {
+        id: 'video-feeling',
+        prompt: 'What should the film feel like?',
+        options: [
+          { id: 'grounded-real', label: 'Grounded & real' },
+          { id: 'epic-scale', label: 'Epic scale' },
+          { id: 'fast-energetic', label: 'Fast & energetic' },
+          { id: 'warm-human', label: 'Warm & human' },
+          { id: 'precise-technical', label: 'Precise & technical' },
+        ],
+      },
+    ],
+  },
 ];
 
 export function getBuildCategory(id: string): BuildCategory | undefined {

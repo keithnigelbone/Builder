@@ -89,7 +89,7 @@ const CLASSIFY_TOOL = {
     properties: {
       category: {
         type: 'string',
-        enum: ['website', 'app-screens', 'slides', 'social-media', 'motion'],
+        enum: ['website', 'app-screens', 'slides', 'social-media', 'motion', 'video'],
         description: 'The single best-fit output format for this request.',
       },
       reasoning: { type: 'string', description: 'One or two sentences on why this category and these follow-ups.' },

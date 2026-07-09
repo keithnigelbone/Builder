@@ -16,6 +16,7 @@ const CHROME_BY_CATEGORY: Record<BuildCategoryId, 'browser' | 'phone' | 'none'> 
   slides: 'none',
   'social-media': 'none',
   motion: 'none',
+  video: 'none',
 };
 
 /**

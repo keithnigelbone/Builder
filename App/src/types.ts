@@ -1,6 +1,6 @@
 import type { BuildPlan, FollowUpQuestion } from './ai/schema';
 
-export type BuildCategoryId = 'website' | 'app-screens' | 'slides' | 'social-media' | 'motion';
+export type BuildCategoryId = 'website' | 'app-screens' | 'slides' | 'social-media' | 'motion' | 'video';
 
 export interface QuestionOption {
   id: string;
