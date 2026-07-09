@@ -36,6 +36,12 @@ describe('recommendComponents', () => {
   it('silently ignores answer ids with no matching addition', () => {
     expect(() => recommendComponents('website', { 'website-goal': 'inform' })).not.toThrow();
   });
+
+  it('recommends the storyboard components for video builds', () => {
+    const names = recommendComponents('video', {}).map((r) => r.meta.name);
+    expect(names).toContain('Container');
+    expect(names).toContain('Button');
+  });
 });
 
 describe('isKnownComponent', () => {

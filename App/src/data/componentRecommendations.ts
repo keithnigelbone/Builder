@@ -14,6 +14,7 @@ const BASE_RECOMMENDATIONS: Record<BuildCategoryId, string[]> = {
   slides: ['Surface', 'Text', 'Divider', 'Badge', 'Image', 'Container'],
   'social-media': ['Surface', 'Image', 'Text', 'Badge', 'Avatar', 'Logo'],
   motion: ['CircularProgressIndicator', 'Modal', 'Tooltip', 'IconButton'],
+  video: ['Container', 'Text', 'Surface', 'Badge', 'Image', 'Button'],
 };
 
 /** Extra components pulled in when a specific answer is chosen — small, targeted nudges. */
