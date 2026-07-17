@@ -1,0 +1,35 @@
+.swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+  flex-shrink: 0;
+}
+
+.nativeInput {
+  width: 60px;
+  height: 40px;
+  cursor: pointer;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.tokenButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.tokenButton:hover {
+  border-color: #000000;
+}
+
+.tokenButton:focus {
+  outline: none;
+  border-color: #3900ad;
+  box-shadow: 0 0 0 2px rgba(57, 0, 173, 0.1);
+}
