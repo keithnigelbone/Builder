@@ -1,0 +1,89 @@
+import { Container } from '@jds4/oneui-react';
+import { TextField } from '../fields/TextField';
+import { ColorPicker } from '../fields/ColorPicker';
+import { ComponentSelector } from '../fields/ComponentSelector';
+import { MOTION_SCHEMA } from '../../../services/cmsEditorSchemas';
+import type { CmsEdits } from '../../../types';
+
+interface MotionEditorProps {
+  edits: CmsEdits;
+  onChange: (edits: CmsEdits) => void;
+  onSave: (label: string) => Promise<void>;
+}
+
+export function MotionEditor({ edits, onChange }: MotionEditorProps) {
+  const schema = MOTION_SCHEMA;
+
+  const handleFieldChange = (fieldName: string, value: any) => {
+    onChange({
+      ...edits,
+      [fieldName]: value,
+    });
+  };
+
+  return (
+    <Container variant="full-bleed" layout="flex" direction="column" gap="3">
+      {schema.fields.map((field) => {
+        const value = edits[field.name] ?? '';
+
+        switch (field.type) {
+          case 'text':
+            return (
+              <TextField
+                key={field.name}
+                name={field.name}
+                label={field.label}
+                value={String(value)}
+                onChange={(v) => handleFieldChange(field.name, v)}
+                maxLength={field.maxLength}
+                placeholder={field.placeholder}
+                help={field.help}
+                validation={field.validation}
+              />
+            );
+
+          case 'number':
+            return (
+              <TextField
+                key={field.name}
+                name={field.name}
+                label={field.label}
+                value={String(value)}
+                onChange={(v) => handleFieldChange(field.name, v === '' ? '' : Number(v))}
+                placeholder={field.placeholder}
+                help={field.help}
+              />
+            );
+
+          case 'color':
+            return (
+              <ColorPicker
+                key={field.name}
+                name={field.name}
+                label={field.label}
+                value={String(value)}
+                onChange={(v) => handleFieldChange(field.name, v)}
+                help={field.help}
+              />
+            );
+
+          case 'dropdown':
+            return (
+              <ComponentSelector
+                key={field.name}
+                name={field.name}
+                label={field.label}
+                value={String(value)}
+                onChange={(v) => handleFieldChange(field.name, v)}
+                options={field.options || []}
+                help={field.help}
+              />
+            );
+
+          default:
+            return null;
+        }
+      })}
+    </Container>
+  );
+}
