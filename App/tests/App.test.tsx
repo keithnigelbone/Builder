@@ -62,6 +62,11 @@ const saveVersionToFileMock = vi.fn().mockResolvedValue(undefined);
 vi.mock('../src/services/cmsFileService', () => ({
   saveVersionToFile: (...args: unknown[]) => saveVersionToFileMock(...args),
   sanitizeLabel: (label: string) => label.trim().toLowerCase().replace(/\s+/g, '-'),
+  deriveBuildId: (buildRequest: { category: { id: string; label: string }; freeformPrompt: string }) =>
+    `${buildRequest.category.id}-${(buildRequest.freeformPrompt || buildRequest.category.label)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')}`,
 }));
 
 let lastCmsSidebarProps: {

@@ -37,6 +37,7 @@ import {
   generateVersionFilename,
   saveVersionToFile,
   getVersionHistory,
+  deriveBuildId,
 } from '../../src/services/cmsFileService';
 
 const original: SavedVersion['original'] = { plan: {}, refinements: [] };
@@ -124,6 +125,36 @@ describe('saveVersionToFile', () => {
     expect(command).toContain('git');
     expect(command).toContain('commit');
     expect(command).toContain('Edit: Quick fix');
+  });
+
+  it('rethrows a git commit failure with a clear, prefixed message (file is still written)', async () => {
+    execMock.mockImplementationOnce((_command: string, callback: (err: unknown, result: unknown) => void) => {
+      callback(new Error('fatal: not a git repository'), { stdout: '', stderr: '' });
+    });
+
+    await expect(saveVersionToFile(makeMetadata(), edits, original)).rejects.toThrow(
+      'Git commit failed: fatal: not a git repository'
+    );
+    // The version file was already written before the commit step ran.
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('deriveBuildId', () => {
+  it('combines the category id and a slugified freeform prompt', () => {
+    const buildId = deriveBuildId({
+      category: { id: 'app-screens', label: 'App Screens', description: '', questions: [] as never },
+      freeformPrompt: 'A Test Build',
+    } as never);
+    expect(buildId).toBe('app-screens-a-test-build');
+  });
+
+  it('falls back to the category label when there is no freeform prompt', () => {
+    const buildId = deriveBuildId({
+      category: { id: 'video', label: 'Video Build', description: '', questions: [] as never },
+      freeformPrompt: '',
+    } as never);
+    expect(buildId).toBe('video-video-build');
   });
 });
 

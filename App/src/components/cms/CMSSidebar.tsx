@@ -12,6 +12,9 @@ interface CMSSidebarProps {
   /** Forwarded straight through to CMSEditor — see its own doc comment.
    * Optional and additive. */
   onEditsChange?: (edits: CmsEdits) => void;
+  /** Forwarded straight through to CMSEditor — see its own doc comment.
+   * Optional and additive. */
+  onUnsavedChangesChange?: (unsaved: boolean) => void;
 }
 
 const CONTENT_TYPE_LABELS: Record<ContentTypeId, string> = {
@@ -24,7 +27,7 @@ const CONTENT_TYPE_LABELS: Record<ContentTypeId, string> = {
 
 /** Persistent left sidebar that hosts the CMS editor. Fixed-positioned,
  * toggled open/closed from the header, and stacks above app content. */
-export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave, onEditsChange }: CMSSidebarProps) {
+export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave, onEditsChange, onUnsavedChangesChange }: CMSSidebarProps) {
   if (!isOpen) {
     return null;
   }
@@ -54,7 +57,13 @@ export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave
       </Container>
 
       <Container variant="full-bleed" layout="flex" direction="column" className={styles.body}>
-        <CMSEditor buildRequest={buildRequest} contentType={contentType} onSave={onSave} onEditsChange={onEditsChange} />
+        <CMSEditor
+          buildRequest={buildRequest}
+          contentType={contentType}
+          onSave={onSave}
+          onEditsChange={onEditsChange}
+          onUnsavedChangesChange={onUnsavedChangesChange}
+        />
       </Container>
 
       <Container variant="full-bleed" className={styles.footer} />

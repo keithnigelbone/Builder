@@ -4,7 +4,7 @@ import { promises as fs } from 'node:fs';
 import { exec } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import type { CmsEdits, SavedVersion, VersionMetadata } from '../types';
+import type { BuildRequest, CmsEdits, SavedVersion, VersionMetadata } from '../types';
 
 const execAsync = promisify(exec);
 
@@ -27,6 +27,15 @@ export function generateVersionFilename(metadata: VersionMetadata): string {
   return `${isoDate}-${sanitizeLabel(metadata.label)}.json`;
 }
 
+/** Stable build identifier derived from a build request — the same formula
+ * used both when saving a version (so it can be found again later) and when
+ * browsing version history (so the right versions are matched). Centralized
+ * here so the two call sites (App.tsx and CMSEditor) can never drift apart. */
+export function deriveBuildId(buildRequest: Pick<BuildRequest, 'category' | 'freeformPrompt'>): string {
+  const { category, freeformPrompt } = buildRequest;
+  return `${category.id}-${sanitizeLabel(freeformPrompt || category.label)}`;
+}
+
 /**
  * Persist a CMS edit as a versioned JSON file under builds/ and record it as
  * a git commit. Keep it simple: no CDN upload, no async polling.
@@ -44,7 +53,16 @@ export async function saveVersionToFile(
   await fs.writeFile(filePath, JSON.stringify(savedVersion, null, 2), 'utf-8');
 
   const commitMessage = `Edit: ${metadata.label}`;
-  await execAsync(`git add ${JSON.stringify(filePath)} && git commit -m ${JSON.stringify(commitMessage)}`);
+  try {
+    await execAsync(`git add ${JSON.stringify(filePath)} && git commit -m ${JSON.stringify(commitMessage)}`);
+  } catch (error) {
+    // The version file above is already safely on disk at this point — only
+    // the commit step failed. Rethrow with a clear, user-facing message
+    // (rather than a raw exec/stderr blob) so the caller (CMSEditor's save
+    // error modal) can show something meaningful and let the user retry.
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Git commit failed: ${message}`);
+  }
 }
 
 /** List saved versions for a build. Returns [] if none exist yet. */

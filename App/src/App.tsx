@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Button } from '@jds4/oneui-react';
 import { BUILD_CATEGORIES, getBuildCategory, initialFollowUps } from './data/buildCategories';
 import { requestClassification } from './ai/client';
@@ -32,6 +32,11 @@ export function App() {
   // ResultScreen.tsx / BuildPreview.tsx. Undefined (not `{}`) until the
   // first edit, so BuildPreview renders the plan unchanged until then.
   const [cmsEdits, setCmsEdits] = useState<CmsEdits | undefined>(undefined);
+  // Mirrors CMSEditor's own unsavedChanges flag (lifted via CMSSidebar's
+  // onUnsavedChangesChange) so App can guard closing the CMS editor and
+  // leaving/reloading the tab with a confirmation — CMSEditor itself has no
+  // way to intercept either of those, since both originate outside it.
+  const [hasUnsavedCmsEdits, setHasUnsavedCmsEdits] = useState(false);
 
   // Derived, not duplicated: the active build request already lives on
   // `step` once a build has been generated (step.kind === 'result'), so
@@ -39,14 +44,36 @@ export function App() {
   // CMS layout a short, clearly-named handle on it.
   const buildRequest = step.kind === 'result' ? step.request : undefined;
 
-  const handleToggleCms = () => setIsCmsOpen(!isCmsOpen);
+  // Reload/close the browser tab with unsaved CMS edits pending -> the
+  // browser shows its own native confirmation. The message string here is
+  // ignored by all modern browsers, which show a fixed message of their own.
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedCmsEdits) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedCmsEdits]);
+
+  const handleToggleCms = () => {
+    // Only guard the close (open -> closed) direction, and only when there's
+    // something the user would actually lose.
+    if (isCmsOpen && hasUnsavedCmsEdits) {
+      if (!window.confirm('You have unsaved changes. Discard?')) return;
+      setCmsEdits(undefined);
+      setHasUnsavedCmsEdits(false);
+    }
+    setIsCmsOpen(!isCmsOpen);
+  };
 
   const handleSetCmsContentType = (type: ContentTypeId) => setCmsContentType(type);
 
   const handleCmsSave = async (label: string, edits: CmsEdits) => {
     if (!buildRequest) return;
-    const { category, freeformPrompt, plan, refinements } = buildRequest;
-    const buildId = `${category.id}-${cmsFileService.sanitizeLabel(freeformPrompt || category.label)}`;
+    const { plan, refinements } = buildRequest;
+    const buildId = cmsFileService.deriveBuildId(buildRequest);
     await cmsFileService.saveVersionToFile(
       { buildId, contentType: cmsContentType, label, timestamp: new Date().toISOString() },
       edits,
@@ -182,6 +209,7 @@ export function App() {
             contentType={cmsContentType}
             onSave={handleCmsSave}
             onEditsChange={setCmsEdits}
+            onUnsavedChangesChange={setHasUnsavedCmsEdits}
           />
           <Container
             variant="full-bleed"
