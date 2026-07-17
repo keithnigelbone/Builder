@@ -1,0 +1,20 @@
+.input {
+  padding: 8px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3900ad;
+  box-shadow: 0 0 0 2px rgba(57, 0, 173, 0.1);
+}
+
+.input[aria-invalid='true'] {
+  border-color: #d32f2f;
+}
