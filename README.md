@@ -1,9 +1,15 @@
-# Reliance Builder
+# Reliance Builder — AI Generation + CMS Editor
 
-An AI-assisted prototype: type what you want to build, and it generates a Reliance-branded
-visual first draft — website, app screen, slide, social asset, or motion concept — using
-Reliance's real design tokens and components from `oneui.brands.json`, with Claude as the
-reasoning layer that interprets the prompt and authors the content/layout.
+An AI-assisted builder that generates Reliance-branded visual drafts (website, app screen, slide, social asset, or motion concept) using Claude as the reasoning layer. Plus a full-featured **CMS Editor** for post-generation visual refinement — edit text, images, colors, and layouts without regenerating.
+
+## Features
+
+✨ **AI Generation** — Type what you want to build, get a Reliance-branded visual draft  
+✏️ **CMS Editing** — Edit all content types after generation without regenerating  
+🔄 **Real-time Preview** — See edits sync instantly as you type  
+💾 **Versioned Persistence** — Save versions with git commit history  
+📚 **Version History** — Browse and load previous versions  
+⚠️ **Error Handling** — Git failures show retry/discard; unsaved-changes confirmation
 
 ## Skill check (run before this feature was built)
 
@@ -39,6 +45,18 @@ npm run app:dev
 ```
 
 Open the printed local URL (usually http://localhost:5173 or the next free port).
+
+## Using the CMS Editor
+
+After generating a build:
+
+1. Click **Edit** in the toolbar to open the persistent CMS sidebar
+2. Edit fields (headline, image, color, etc.) — watch the preview update in real-time
+3. Click **Save Version**, enter a label (e.g., "Hero refinement")
+4. Version saved to `builds/` directory with git commit
+5. Use **Version History** to browse and load previous versions
+
+All edits create immutable version snapshots with full original plan + edits stored as JSON.
 
 ### Enabling live Claude generation
 
