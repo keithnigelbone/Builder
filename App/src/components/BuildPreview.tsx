@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Container, Text, Button, Surface } from '@jds4/oneui-react';
-import type { BuildCategoryId, GuidedAnswers } from '../types';
+import type { BuildCategoryId, CmsEdits, GuidedAnswers } from '../types';
 import type { BuildPlan, SlideContent } from '../ai/schema';
 import { getDefaultVariant } from '../data/previewDimensions';
 import { PreviewFrame } from './PreviewFrame';
@@ -28,7 +28,18 @@ const CHROME_BY_CATEGORY: Record<BuildCategoryId, 'browser' | 'phone' | 'none'> 
  * supplies content and structure (see ai/schema.ts); it never chooses
  * styling.
  */
-export function BuildPreview({ category, answers, plan }: { category: BuildCategoryId; answers: GuidedAnswers; plan: BuildPlan }) {
+export function BuildPreview({
+  category,
+  answers,
+  plan,
+  cmsEdits,
+}: {
+  category: BuildCategoryId;
+  answers: GuidedAnswers;
+  plan: BuildPlan;
+  /** Live CMS field overrides, merged over the plan before render. Optional and additive — omitting it renders the plan unchanged. */
+  cmsEdits?: CmsEdits;
+}) {
   const [variantId, setVariantId] = useState(() => getDefaultVariant(category).id);
   const [slideIndex, setSlideIndex] = useState(0);
 
@@ -59,6 +70,17 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
         : null;
   const currentIndex = navigator ? Math.min(Math.max(slideIndex, 0), navigator.count - 1) : 0;
 
+  // Merge cmsEdits over whichever slice of the plan is actually on screen:
+  // the flat plan for single-content categories, or just the currently
+  // viewed slide/frame for the deck/carousel formats. With no cmsEdits,
+  // every value below is referentially the plan's own data (render as-is).
+  const activePlan: BuildPlan = cmsEdits ? { ...plan, ...cmsEdits } : plan;
+  const activeSlide: SlideContent = cmsEdits && category === 'slides' ? { ...slides[currentIndex], ...cmsEdits } : slides[currentIndex];
+  const activeSocialPlan: BuildPlan =
+    cmsEdits && category === 'social-media' && variantId === 'carousel'
+      ? { ...activePlan, carouselFrames: frames.map((frame, i) => (i === currentIndex ? { ...frame, ...cmsEdits } : frame)) }
+      : activePlan;
+
   return (
     <Surface mode="moderate" style={{ padding: 'var(--Spacing-4)', borderRadius: 'var(--Shape-3)' }}>
       <PreviewFrame
@@ -68,12 +90,12 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
         chrome={CHROME_BY_CATEGORY[category]}
         overrideDimensions={category === 'video' ? plan.videoFormat : undefined}
       >
-        {category === 'website' && <WebsitePreview plan={plan} />}
-        {category === 'app-screens' && <AppScreenPreview plan={plan} />}
-        {category === 'slides' && <SlidePreview slide={slides[currentIndex]} heroImage={plan.heroImage} />}
-        {category === 'social-media' && <SocialPreview plan={plan} variantId={variantId} frameIndex={currentIndex} />}
-        {category === 'motion' && <MotionPreview plan={plan} feelingAnswerId={answers['motion-feeling']} />}
-        {category === 'video' && <VideoPreview plan={plan} />}
+        {category === 'website' && <WebsitePreview plan={activePlan} />}
+        {category === 'app-screens' && <AppScreenPreview plan={activePlan} />}
+        {category === 'slides' && <SlidePreview slide={activeSlide} heroImage={plan.heroImage} />}
+        {category === 'social-media' && <SocialPreview plan={activeSocialPlan} variantId={variantId} frameIndex={currentIndex} />}
+        {category === 'motion' && <MotionPreview plan={activePlan} feelingAnswerId={answers['motion-feeling']} />}
+        {category === 'video' && <VideoPreview plan={activePlan} />}
       </PreviewFrame>
 
       {navigator && navigator.count > 1 && (
@@ -90,7 +112,7 @@ export function BuildPreview({ category, answers, plan }: { category: BuildCateg
         </Container>
       )}
 
-      {category === 'video' && <VideoConceptDetails plan={plan} />}
+      {category === 'video' && <VideoConceptDetails plan={activePlan} />}
     </Surface>
   );
 }
