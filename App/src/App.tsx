@@ -1,17 +1,52 @@
 import { useState } from 'react';
+import { Container, Button } from '@jds4/oneui-react';
 import { BUILD_CATEGORIES, getBuildCategory, initialFollowUps } from './data/buildCategories';
 import { requestClassification } from './ai/client';
 import { generateBuild } from './ai/orchestrator';
 import { StartScreen } from './components/StartScreen';
 import { GuidedQuestionScreen } from './components/GuidedQuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { CMSSidebar } from './components/cms/CMSSidebar';
 import { nextFollowUps } from './data/videoCustomQuestion';
-import type { AIMeta, AppStep, BuildCategory, BuildCategoryId, GuidedAnswers } from './types';
+import * as cmsFileService from './services/cmsFileService';
+import type { AIMeta, AppStep, BuildCategory, BuildCategoryId, CmsEdits, ContentTypeId, GuidedAnswers } from './types';
+import styles from './App.module.css';
+
+const CMS_CONTENT_TYPES: { id: ContentTypeId; label: string }[] = [
+  { id: 'appscreen', label: 'App Screen' },
+  { id: 'video', label: 'Video' },
+  { id: 'social', label: 'Social Card' },
+  { id: 'motion', label: 'Motion' },
+  { id: 'slide', label: 'Slide' },
+];
 
 export function App() {
   const [prompt, setPrompt] = useState('');
   const [step, setStep] = useState<AppStep>({ kind: 'start' });
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  const [isCmsOpen, setIsCmsOpen] = useState(false);
+  const [cmsContentType, setCmsContentType] = useState<ContentTypeId>('appscreen');
+
+  // Derived, not duplicated: the active build request already lives on
+  // `step` once a build has been generated (step.kind === 'result'), so
+  // there's nothing to keep separately in sync here — this just gives the
+  // CMS layout a short, clearly-named handle on it.
+  const buildRequest = step.kind === 'result' ? step.request : undefined;
+
+  const handleToggleCms = () => setIsCmsOpen(!isCmsOpen);
+
+  const handleSetCmsContentType = (type: ContentTypeId) => setCmsContentType(type);
+
+  const handleCmsSave = async (label: string, edits: CmsEdits) => {
+    if (!buildRequest) return;
+    const { category, freeformPrompt, plan, refinements } = buildRequest;
+    const buildId = `${category.id}-${cmsFileService.sanitizeLabel(freeformPrompt || category.label)}`;
+    await cmsFileService.saveVersionToFile(
+      { buildId, contentType: cmsContentType, label, timestamp: new Date().toISOString() },
+      edits,
+      { plan, refinements }
+    );
+  };
 
   const beginGuidedFlow = async (freeformPrompt: string, categoryOverride?: BuildCategoryId) => {
     setBusyLabel('Reading your request…');
@@ -128,15 +163,48 @@ export function App() {
       );
     case 'result':
       return (
-        <ResultScreen
-          request={step.request}
-          busyLabel={busyLabel}
-          onRefine={handleRefine}
-          onStartOver={() => {
-            setPrompt('');
-            setStep({ kind: 'start' });
-          }}
-        />
+        <Container variant="full-bleed" className={styles.layout}>
+          <CMSSidebar
+            isOpen={isCmsOpen}
+            onToggle={handleToggleCms}
+            buildRequest={step.request}
+            contentType={cmsContentType}
+            onSave={handleCmsSave}
+          />
+          <Container
+            variant="full-bleed"
+            layout="flex"
+            direction="column"
+            className={isCmsOpen ? `${styles.mainContent} ${styles.mainContentShifted}` : styles.mainContent}
+          >
+            <Container variant="full-bleed" className={styles.cmsToolbar}>
+              <Button attention="high" onClick={handleToggleCms}>
+                {isCmsOpen ? 'Hide CMS Editor' : 'Edit Content'}
+              </Button>
+              <select
+                aria-label="CMS content type"
+                value={cmsContentType}
+                onChange={(e) => handleSetCmsContentType(e.target.value as ContentTypeId)}
+              >
+                {CMS_CONTENT_TYPES.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </Container>
+
+            <ResultScreen
+              request={step.request}
+              busyLabel={busyLabel}
+              onRefine={handleRefine}
+              onStartOver={() => {
+                setPrompt('');
+                setStep({ kind: 'start' });
+              }}
+            />
+          </Container>
+        </Container>
       );
   }
 }

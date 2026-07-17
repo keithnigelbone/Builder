@@ -1,0 +1,28 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Push content clear of the fixed-position CMSSidebar (35% width, see
+   CMSSidebar.module.css) so the two never overlap on desktop. */
+.mainContentShifted {
+  margin-left: 35%;
+}
+
+.cmsToolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--Spacing-2, 8px);
+  padding: 12px 24px;
+}
+
+@media (max-width: 768px) {
+  .mainContentShifted {
+    margin-left: 0;
+  }
+}
