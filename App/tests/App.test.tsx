@@ -45,8 +45,17 @@ vi.mock('../src/components/GuidedQuestionScreen', () => ({
   GuidedQuestionScreen: () => <div data-testid="guided-question-stub" />,
 }));
 
+let lastResultScreenProps: { cmsEdits?: Record<string, unknown>; onStartOver: () => void } | undefined;
+
 vi.mock('../src/components/ResultScreen', () => ({
-  ResultScreen: () => <div data-testid="result-screen-stub" />,
+  ResultScreen: (props: { cmsEdits?: Record<string, unknown>; onStartOver: () => void }) => {
+    lastResultScreenProps = props;
+    return (
+      <div data-testid="result-screen-stub" data-cms-edits={JSON.stringify(props.cmsEdits ?? null)}>
+        <button onClick={props.onStartOver}>start-over</button>
+      </div>
+    );
+  },
 }));
 
 const saveVersionToFileMock = vi.fn().mockResolvedValue(undefined);
@@ -61,6 +70,7 @@ let lastCmsSidebarProps: {
   buildRequest: unknown;
   contentType: string;
   onSave: (label: string, edits: Record<string, unknown>) => Promise<void>;
+  onEditsChange?: (edits: Record<string, unknown>) => void;
 } | undefined;
 
 vi.mock('../src/components/cms/CMSSidebar', () => ({
@@ -70,11 +80,19 @@ vi.mock('../src/components/cms/CMSSidebar', () => ({
     buildRequest: unknown;
     contentType: string;
     onSave: (label: string, edits: Record<string, unknown>) => Promise<void>;
+    onEditsChange?: (edits: Record<string, unknown>) => void;
   }) => {
     lastCmsSidebarProps = props;
     return (
       <div data-testid="cms-sidebar-stub" data-open={props.isOpen} data-content-type={props.contentType}>
         <button onClick={props.onToggle}>toggle-cms</button>
+        {/* Simulates a CMSEditor field edit lifting through CMSSidebar to App. */}
+        <button onClick={() => props.onEditsChange?.({ headline: 'Edited from CMSEditor' })}>
+          simulate-cms-edit
+        </button>
+        <button onClick={() => props.onEditsChange?.({ bodyText: 'Second field edited' })}>
+          simulate-second-cms-edit
+        </button>
       </div>
     );
   },
@@ -139,5 +157,71 @@ describe('App CMS integration', () => {
   it('does not render CMSSidebar before a build result exists', () => {
     render(<App />);
     expect(screen.queryByTestId('cms-sidebar-stub')).not.toBeInTheDocument();
+  });
+});
+
+describe('App cmsEdits state connection', () => {
+  beforeEach(() => {
+    lastCmsSidebarProps = undefined;
+    lastResultScreenProps = undefined;
+    saveVersionToFileMock.mockClear();
+  });
+
+  it('passes no cmsEdits to ResultScreen/BuildPreview before any field is edited', async () => {
+    await renderToResultStep();
+
+    expect(lastResultScreenProps?.cmsEdits).toBeUndefined();
+  });
+
+  it('lifts a CMSEditor field edit into App state and forwards it to ResultScreen (BuildPreview)', async () => {
+    await renderToResultStep();
+
+    expect(typeof lastCmsSidebarProps?.onEditsChange).toBe('function');
+
+    fireEvent.click(screen.getByText('simulate-cms-edit'));
+
+    await waitFor(() => {
+      expect(lastResultScreenProps?.cmsEdits).toEqual({ headline: 'Edited from CMSEditor' });
+    });
+    expect(screen.getByTestId('result-screen-stub')).toHaveAttribute(
+      'data-cms-edits',
+      JSON.stringify({ headline: 'Edited from CMSEditor' })
+    );
+  });
+
+  it('replaces cmsEdits on each change rather than accumulating stale fields', async () => {
+    await renderToResultStep();
+
+    fireEvent.click(screen.getByText('simulate-cms-edit'));
+    await waitFor(() => {
+      expect(lastResultScreenProps?.cmsEdits).toEqual({ headline: 'Edited from CMSEditor' });
+    });
+
+    // CMSEditor always lifts its full edits object (not a partial diff), so
+    // the second edit's payload should fully replace the first's in App
+    // state — no leftover `headline` field lingering alongside `bodyText`.
+    fireEvent.click(screen.getByText('simulate-second-cms-edit'));
+    await waitFor(() => {
+      expect(lastResultScreenProps?.cmsEdits).toEqual({ bodyText: 'Second field edited' });
+    });
+    expect(lastResultScreenProps?.cmsEdits).not.toHaveProperty('headline');
+  });
+
+  it('resets cmsEdits when a new build is generated, so stale edits never leak into the next build', async () => {
+    await renderToResultStep();
+
+    fireEvent.click(screen.getByText('simulate-cms-edit'));
+    await waitFor(() => {
+      expect(lastResultScreenProps?.cmsEdits).toEqual({ headline: 'Edited from CMSEditor' });
+    });
+
+    // Starting over returns to the start screen; beginning a fresh build
+    // should not carry the previous build's lifted edits along with it.
+    fireEvent.click(screen.getByText('start-over'));
+    await waitFor(() => screen.getByText('start-build'));
+    fireEvent.click(screen.getByText('start-build'));
+    await waitFor(() => screen.getByTestId('result-screen-stub'));
+
+    expect(lastResultScreenProps?.cmsEdits).toBeUndefined();
   });
 });

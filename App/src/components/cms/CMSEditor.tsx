@@ -13,6 +13,10 @@ interface CMSEditorProps {
   buildRequest: BuildRequest;
   contentType: ContentTypeId;
   onSave: (label: string, edits: CmsEdits) => Promise<void>;
+  /** Fired with the full edit set on every field change (and on discard).
+   * Optional and additive — lets a parent (e.g. App) mirror the live edits
+   * elsewhere, such as feeding BuildPreview for a real-time preview. */
+  onEditsChange?: (edits: CmsEdits) => void;
 }
 
 const EDITORS: Record<ContentTypeId, typeof AppScreenEditor> = {
@@ -25,7 +29,7 @@ const EDITORS: Record<ContentTypeId, typeof AppScreenEditor> = {
 
 /** Main CMS editor form: owns edit state, renders the content-type-specific
  * field editor, and drives the labeled-save modal flow. */
-export function CMSEditor({ buildRequest: _buildRequest, contentType, onSave }: CMSEditorProps) {
+export function CMSEditor({ buildRequest: _buildRequest, contentType, onSave, onEditsChange }: CMSEditorProps) {
   const [edits, setEdits] = useState<CmsEdits>(() => getDefaultEditsForContentType(contentType));
   const [isSaving, setIsSaving] = useState(false);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
@@ -35,6 +39,7 @@ export function CMSEditor({ buildRequest: _buildRequest, contentType, onSave }: 
   const handleEditChange = (newEdits: CmsEdits) => {
     setEdits(newEdits);
     setUnsavedChanges(true);
+    onEditsChange?.(newEdits);
   };
 
   const handleSaveClick = () => {
@@ -62,8 +67,13 @@ export function CMSEditor({ buildRequest: _buildRequest, contentType, onSave }: 
     if (unsavedChanges && !window.confirm('Discard unsaved changes?')) {
       return;
     }
-    setEdits(getDefaultEditsForContentType(contentType));
+    const defaults = getDefaultEditsForContentType(contentType);
+    setEdits(defaults);
     setUnsavedChanges(false);
+    // Mirror the reset too, so a parent holding a lifted copy (e.g. App's
+    // cmsEdits state feeding BuildPreview) doesn't keep stale field values
+    // around after the user discards.
+    onEditsChange?.(defaults);
   };
 
   const EditorComponent = EDITORS[contentType] || AppScreenEditor;

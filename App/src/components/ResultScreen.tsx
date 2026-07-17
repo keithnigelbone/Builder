@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Container, Surface, Text, Button, Divider, Chip, CircularProgressIndicator } from '@jds4/oneui-react';
-import type { BuildRequest } from '../types';
+import type { BuildRequest, CmsEdits } from '../types';
 import { recommendComponents } from '../data/componentRecommendations';
 import { collectTokensByCategory } from '../data/tokenRecommendations';
 import { BuildPreview } from './BuildPreview';
@@ -12,9 +12,12 @@ interface ResultScreenProps {
   busyLabel: string | null;
   onRefine: (note: string) => void;
   onStartOver: () => void;
+  /** Live CMS field overrides lifted from App state, forwarded to BuildPreview
+   * for real-time editing. Optional and additive. */
+  cmsEdits?: CmsEdits;
 }
 
-export function ResultScreen({ request, busyLabel, onRefine, onStartOver }: ResultScreenProps) {
+export function ResultScreen({ request, busyLabel, onRefine, onStartOver, cmsEdits }: ResultScreenProps) {
   const { category, answers, plan, refinements } = request;
 
   // Derived, not stored: recomputing from the real registry keeps this in
@@ -54,7 +57,7 @@ export function ResultScreen({ request, busyLabel, onRefine, onStartOver }: Resu
         </Container>
 
         <Container variant="full-bleed" layout="flex" direction="column" gap="2" width="full">
-          <BuildPreview category={category.id} answers={answers} plan={plan} />
+          <BuildPreview category={category.id} answers={answers} plan={plan} cmsEdits={cmsEdits} />
           {busyLabel && (
             <Container variant="full-bleed" layout="flex" align="center" gap="2">
               <CircularProgressIndicator variant="indeterminate" size="XS" aria-label="Working" />

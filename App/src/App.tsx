@@ -26,6 +26,12 @@ export function App() {
   const [busyLabel, setBusyLabel] = useState<string | null>(null);
   const [isCmsOpen, setIsCmsOpen] = useState(false);
   const [cmsContentType, setCmsContentType] = useState<ContentTypeId>('appscreen');
+  // Live CMS field overrides, lifted from CMSEditor (via CMSSidebar's
+  // onEditsChange) on every keystroke and mirrored straight down to
+  // BuildPreview through ResultScreen — see the data-flow comment in
+  // ResultScreen.tsx / BuildPreview.tsx. Undefined (not `{}`) until the
+  // first edit, so BuildPreview renders the plan unchanged until then.
+  const [cmsEdits, setCmsEdits] = useState<CmsEdits | undefined>(undefined);
 
   // Derived, not duplicated: the active build request already lives on
   // `step` once a build has been generated (step.kind === 'result'), so
@@ -84,6 +90,11 @@ export function App() {
     setBusyLabel(refinement ? 'Updating your preview…' : 'Designing your preview…');
     const result = await generateBuild({ category: category.id, prompt: freeformPrompt, answers, refinement }, setBusyLabel);
     setBusyLabel(null);
+
+    // A new plan (fresh build or refinement) invalidates any in-progress CMS
+    // edits made against the previous content — carrying them forward would
+    // silently overwrite the new plan's fields with stale values.
+    setCmsEdits(undefined);
 
     setStep((prev) => {
       const refinements = prev.kind === 'result' && refinement ? [...prev.request.refinements, refinement] : [];
@@ -170,6 +181,7 @@ export function App() {
             buildRequest={step.request}
             contentType={cmsContentType}
             onSave={handleCmsSave}
+            onEditsChange={setCmsEdits}
           />
           <Container
             variant="full-bleed"
@@ -202,6 +214,7 @@ export function App() {
                 setPrompt('');
                 setStep({ kind: 'start' });
               }}
+              cmsEdits={cmsEdits}
             />
           </Container>
         </Container>

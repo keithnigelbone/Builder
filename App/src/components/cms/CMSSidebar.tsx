@@ -9,6 +9,9 @@ interface CMSSidebarProps {
   buildRequest: BuildRequest;
   contentType: ContentTypeId;
   onSave: (label: string, edits: CmsEdits) => Promise<void>;
+  /** Forwarded straight through to CMSEditor — see its own doc comment.
+   * Optional and additive. */
+  onEditsChange?: (edits: CmsEdits) => void;
 }
 
 const CONTENT_TYPE_LABELS: Record<ContentTypeId, string> = {
@@ -21,7 +24,7 @@ const CONTENT_TYPE_LABELS: Record<ContentTypeId, string> = {
 
 /** Persistent left sidebar that hosts the CMS editor. Fixed-positioned,
  * toggled open/closed from the header, and stacks above app content. */
-export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave }: CMSSidebarProps) {
+export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave, onEditsChange }: CMSSidebarProps) {
   if (!isOpen) {
     return null;
   }
@@ -51,7 +54,7 @@ export function CMSSidebar({ isOpen, onToggle, buildRequest, contentType, onSave
       </Container>
 
       <Container variant="full-bleed" layout="flex" direction="column" className={styles.body}>
-        <CMSEditor buildRequest={buildRequest} contentType={contentType} onSave={onSave} />
+        <CMSEditor buildRequest={buildRequest} contentType={contentType} onSave={onSave} onEditsChange={onEditsChange} />
       </Container>
 
       <Container variant="full-bleed" className={styles.footer} />
