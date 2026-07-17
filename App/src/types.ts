@@ -64,3 +64,38 @@ export type AppStep =
       classifyMeta: AIMeta;
     }
   | { kind: 'result'; request: BuildRequest };
+
+// CMS Editor State & Persistence
+export type ContentTypeId = 'appscreen' | 'video' | 'social' | 'motion' | 'slide';
+
+export interface CmsEdits {
+  [key: string]: string | number | boolean | string[] | Record<string, string>;
+}
+
+export interface CMSEditState {
+  edits: CmsEdits;
+  unsavedChanges: boolean;
+  isSaving: boolean;
+  lastSavedAt?: string;
+}
+
+export interface VersionMetadata {
+  buildId: string;
+  contentType: ContentTypeId;
+  label: string;
+  timestamp: string;
+  author?: string;
+  git?: {
+    commit: string;
+    branch: string;
+  };
+}
+
+export interface SavedVersion {
+  metadata: VersionMetadata;
+  edits: CmsEdits;
+  original: {
+    plan: BuildPlan;
+    refinements: string[];
+  };
+}
