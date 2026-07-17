@@ -1,0 +1,44 @@
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed #cccccc;
+  border-radius: 4px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dropzoneActive {
+  border-color: #3900ad;
+  background-color: rgba(57, 0, 173, 0.04);
+}
+
+.hiddenFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.previewWrap {
+  display: inline-flex;
+  width: 96px;
+  height: 96px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
