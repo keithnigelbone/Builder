@@ -8,7 +8,7 @@ import { GuidedQuestionScreen } from './components/GuidedQuestionScreen';
 import { ResultScreen } from './components/ResultScreen';
 import { CMSSidebar } from './components/cms/CMSSidebar';
 import { nextFollowUps } from './data/videoCustomQuestion';
-import * as cmsFileService from './services/cmsFileService';
+import { deriveBuildId } from './services/cmsVersioning';
 import type { AIMeta, AppStep, BuildCategory, BuildCategoryId, CmsEdits, ContentTypeId, GuidedAnswers } from './types';
 import styles from './App.module.css';
 
@@ -73,12 +73,19 @@ export function App() {
   const handleCmsSave = async (label: string, edits: CmsEdits) => {
     if (!buildRequest) return;
     const { plan, refinements } = buildRequest;
-    const buildId = cmsFileService.deriveBuildId(buildRequest);
-    await cmsFileService.saveVersionToFile(
-      { buildId, contentType: cmsContentType, label, timestamp: new Date().toISOString() },
-      edits,
-      { plan, refinements }
-    );
+    const buildId = deriveBuildId(buildRequest);
+    // cmsFileService (node:fs/node:child_process/node:util) can't be bundled
+    // into browser code — it runs server-side, behind this endpoint, in
+    // App/cmsServicePlugin.ts. See that file for the actual save + git logic.
+    const response = await fetch('/api/cms/save', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ buildId, contentType: cmsContentType, label, edits, originalPlan: plan, refinements }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Failed to save CMS version');
+    }
   };
 
   const beginGuidedFlow = async (freeformPrompt: string, categoryOverride?: BuildCategoryId) => {

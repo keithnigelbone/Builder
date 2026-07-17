@@ -1,40 +1,23 @@
 // Node.js persistence layer for CMS edits: writes versioned JSON snapshots to
-// builds/ and creates a git commit per save. Runs in the API/server context.
+// builds/ and creates a git commit per save. Runs only in the Node/API server
+// context (App/cmsServicePlugin.ts under `vite dev`) — NEVER import this
+// module from browser code (App.tsx, CMSEditor.tsx, VersionHistory.tsx).
+// Importing it pulls in node:fs/node:child_process/node:util, which Vite
+// cannot bundle for the browser. Browser code that only needs the pure
+// helpers (sanitizeLabel, generateVersionFilename, deriveBuildId) should
+// import them from ./cmsVersioning instead.
 import { promises as fs } from 'node:fs';
 import { exec } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import type { BuildRequest, CmsEdits, SavedVersion, VersionMetadata } from '../types';
+import type { CmsEdits, SavedVersion, VersionMetadata } from '../types';
+import { generateVersionFilename } from './cmsVersioning';
+
+export { sanitizeLabel, generateVersionFilename, deriveBuildId } from './cmsVersioning';
 
 const execAsync = promisify(exec);
 
 const BUILDS_DIR = path.resolve(process.cwd(), 'builds');
-
-/** Trim/lowercase/dash-ify a label for use in a filesystem-safe filename. */
-export function sanitizeLabel(label: string): string {
-  return label
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-/** "{isoDate}-{slug}.json", e.g. "2026-07-17-hero-section-color-refinement.json". */
-export function generateVersionFilename(metadata: VersionMetadata): string {
-  const isoDate = metadata.timestamp.slice(0, 10);
-  return `${isoDate}-${sanitizeLabel(metadata.label)}.json`;
-}
-
-/** Stable build identifier derived from a build request — the same formula
- * used both when saving a version (so it can be found again later) and when
- * browsing version history (so the right versions are matched). Centralized
- * here so the two call sites (App.tsx and CMSEditor) can never drift apart. */
-export function deriveBuildId(buildRequest: Pick<BuildRequest, 'category' | 'freeformPrompt'>): string {
-  const { category, freeformPrompt } = buildRequest;
-  return `${category.id}-${sanitizeLabel(freeformPrompt || category.label)}`;
-}
 
 /**
  * Persist a CMS edit as a versioned JSON file under builds/ and record it as

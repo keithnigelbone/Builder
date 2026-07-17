@@ -8,6 +8,7 @@ import { relianceTokenCoverage } from './relianceTokenCoveragePlugin';
 import { claudeApiProxy } from './aiServerPlugin';
 import { geminiImageProxy } from './geminiImageProxy';
 import { geminiVideoProxy } from './geminiVideoProxy';
+import { cmsServicePlugin } from './cmsServicePlugin';
 
 // No @vitejs/plugin-react here on purpose (keeping deps minimal, per project
 // convention) — Vite's built-in esbuild transform already handles .tsx via
@@ -82,6 +83,7 @@ export default defineConfig(({ mode }) => {
       claudeApiProxy(),
       geminiImageProxy(),
       geminiVideoProxy(),
+      cmsServicePlugin(),
     ],
     define: {
       __ONEUI_BRANDS_CONFIG__: JSON.stringify(fullBrandsConfig),

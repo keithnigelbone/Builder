@@ -88,6 +88,42 @@ vi.mock('node:child_process', () => {
   return { ...childProcessMock, default: childProcessMock };
 });
 
+// App.tsx and VersionHistory.tsx now talk to cmsFileService over
+// /api/cms/save and /api/cms/versions (see App/cmsServicePlugin.ts) instead
+// of calling it in-process, since that module can't be bundled into browser
+// code. Stand in for that dev-only Vite middleware here so this remains a
+// true integration test of save -> file -> git -> preview: fetch is
+// intercepted and routed straight to the real cmsFileService functions,
+// which themselves run against the mocked node:fs/node:child_process above.
+const fetchMock = vi.fn(async (url: string, init?: { body?: string }) => {
+  const cmsFileService = await import('../../src/services/cmsFileService');
+  const body = init?.body ? JSON.parse(init.body) : {};
+
+  if (url === '/api/cms/save') {
+    const metadata = {
+      buildId: body.buildId,
+      contentType: body.contentType,
+      label: body.label,
+      timestamp: new Date().toISOString(),
+    };
+    const original = { plan: body.originalPlan, refinements: body.refinements ?? [] };
+    try {
+      await cmsFileService.saveVersionToFile(metadata, body.edits, original);
+      return { ok: true, json: () => Promise.resolve({ success: true, version: { metadata, edits: body.edits, original } }) };
+    } catch (err) {
+      return { ok: false, json: () => Promise.resolve({ error: err instanceof Error ? err.message : String(err) }) };
+    }
+  }
+
+  if (url === '/api/cms/versions') {
+    const versions = await cmsFileService.getVersionHistory(body.buildId);
+    return { ok: true, json: () => Promise.resolve(versions) };
+  }
+
+  throw new Error(`Unexpected fetch in test: ${url}`);
+});
+vi.stubGlobal('fetch', fetchMock);
+
 async function renderToResultStep() {
   render(<App />);
   fireEvent.click(screen.getByText('start-build'));

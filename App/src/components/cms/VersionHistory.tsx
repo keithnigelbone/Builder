@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Container, Text } from '@jds4/oneui-react';
-import { getVersionHistory } from '../../services/cmsFileService';
 import type { CmsEdits, SavedVersion } from '../../types';
 import styles from './VersionHistory.module.css';
 
@@ -9,8 +8,21 @@ interface VersionHistoryProps {
   onLoadVersion: (edits: CmsEdits) => void;
 }
 
-/** Browses saved versions for a build (read from builds/ via cmsFileService)
- * and lets the user load one back into the editor after confirming. */
+async function fetchVersionHistory(buildId: string): Promise<SavedVersion[]> {
+  // cmsFileService (node:fs) can't be bundled into browser code — it runs
+  // server-side, behind this endpoint, in App/cmsServicePlugin.ts.
+  const response = await fetch('/api/cms/versions', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ buildId }),
+  });
+  if (!response.ok) return [];
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
+}
+
+/** Browses saved versions for a build (read from builds/ via the CMS service
+ * endpoint) and lets the user load one back into the editor after confirming. */
 export function VersionHistory({ buildId, onLoadVersion }: VersionHistoryProps) {
   const [versions, setVersions] = useState<SavedVersion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,7 +30,7 @@ export function VersionHistory({ buildId, onLoadVersion }: VersionHistoryProps) 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
-    getVersionHistory(buildId).then((result) => {
+    fetchVersionHistory(buildId).then((result) => {
       if (!cancelled) {
         setVersions(result);
         setIsLoading(false);

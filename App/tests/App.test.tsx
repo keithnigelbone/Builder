@@ -58,9 +58,7 @@ vi.mock('../src/components/ResultScreen', () => ({
   },
 }));
 
-const saveVersionToFileMock = vi.fn().mockResolvedValue(undefined);
-vi.mock('../src/services/cmsFileService', () => ({
-  saveVersionToFile: (...args: unknown[]) => saveVersionToFileMock(...args),
+vi.mock('../src/services/cmsVersioning', () => ({
   sanitizeLabel: (label: string) => label.trim().toLowerCase().replace(/\s+/g, '-'),
   deriveBuildId: (buildRequest: { category: { id: string; label: string }; freeformPrompt: string }) =>
     `${buildRequest.category.id}-${(buildRequest.freeformPrompt || buildRequest.category.label)
@@ -68,6 +66,16 @@ vi.mock('../src/services/cmsFileService', () => ({
       .toLowerCase()
       .replace(/\s+/g, '-')}`,
 }));
+
+// App.tsx now saves through the /api/cms/save endpoint (cmsServicePlugin.ts)
+// rather than calling cmsFileService in-process — see App/src/App.tsx's
+// handleCmsSave. Stub global fetch so the save handler resolves synchronously
+// without hitting a real server.
+const fetchMock = vi.fn().mockResolvedValue({
+  ok: true,
+  json: () => Promise.resolve({ success: true, version: {} }),
+});
+vi.stubGlobal('fetch', fetchMock);
 
 let lastCmsSidebarProps: {
   isOpen: boolean;
@@ -112,7 +120,7 @@ async function renderToResultStep() {
 describe('App CMS integration', () => {
   beforeEach(() => {
     lastCmsSidebarProps = undefined;
-    saveVersionToFileMock.mockClear();
+    fetchMock.mockClear();
   });
 
   it('renders CMSSidebar with correct props once a build exists', async () => {
@@ -138,15 +146,16 @@ describe('App CMS integration', () => {
     await waitFor(() => expect(lastCmsSidebarProps?.isOpen).toBe(false));
   });
 
-  it('save handler calls cmsFileService.saveVersionToFile with label and edits', async () => {
+  it('save handler POSTs to /api/cms/save with label and edits', async () => {
     await renderToResultStep();
 
     await lastCmsSidebarProps?.onSave('My label', { headline: 'Edited' });
 
-    expect(saveVersionToFileMock).toHaveBeenCalledTimes(1);
-    const [metadata, edits] = saveVersionToFileMock.mock.calls[0];
-    expect(metadata).toMatchObject({ label: 'My label', contentType: 'appscreen' });
-    expect(edits).toEqual({ headline: 'Edited' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/cms/save');
+    const body = JSON.parse(init.body as string);
+    expect(body).toMatchObject({ label: 'My label', contentType: 'appscreen', edits: { headline: 'Edited' } });
   });
 
   it('content type setter updates cmsContentType and is reflected on CMSSidebar', async () => {
@@ -169,7 +178,7 @@ describe('App cmsEdits state connection', () => {
   beforeEach(() => {
     lastCmsSidebarProps = undefined;
     lastResultScreenProps = undefined;
-    saveVersionToFileMock.mockClear();
+    fetchMock.mockClear();
   });
 
   it('passes no cmsEdits to ResultScreen/BuildPreview before any field is edited', async () => {

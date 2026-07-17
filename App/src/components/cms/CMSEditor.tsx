@@ -8,7 +8,7 @@ import { SlideEditor } from './editors/SlideEditor';
 import { TextField } from './fields/TextField';
 import { VersionHistory } from './VersionHistory';
 import { getDefaultEditsForContentType } from '../../data/cmsDefaults';
-import { deriveBuildId } from '../../services/cmsFileService';
+import { deriveBuildId } from '../../services/cmsVersioning';
 import type { BuildRequest, CmsEdits, ContentTypeId } from '../../types';
 
 interface CMSEditorProps {
